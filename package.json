@@ -1,6 +1,6 @@
 {
   "name": "capacitor-google-fit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Capacitor plugin to use google fit",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -13,12 +13,12 @@
   "author": "Ad Scientiam",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/core": "latest"
+    "@capacitor/core": "1.2.1"
   },
   "devDependencies": {
-    "typescript": "^3.2.4",
-    "@capacitor/ios": "latest",
-    "@capacitor/android": "latest"
+    "typescript": "3.6.3",
+    "@capacitor/ios": "1.2.1",
+    "@capacitor/android": "1.2.1"
   },
   "files": [
     "dist/",
