@@ -27,25 +27,7 @@ To do this:
     ```
     keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
     ```
-
-You should see output similar to this:
-    ```
-    Alias name: androiddebugkey
-    Creation date: Jan 01, 2013
-    Entry type: PrivateKeyEntry
-    Certificate chain length: 1
-    Certificate[1]:
-    Owner: CN=Android Debug, O=Android, C=US
-    Issuer: CN=Android Debug, O=Android, C=US
-    Serial number: 4aa9b300
-    Valid from: Mon Jan 01 08:04:04 UTC 2013 until: Mon Jan 01 18:04:04 PST 2033
-    Certificate fingerprints:
-        MD5:  AE:9F:95:D0:A6:86:89:BC:A8:70:BA:34:FF:6A:AC:F9
-        SHA1: BB:0D:AC:74:D3:21:E1:43:07:71:9B:62:90:AF:A1:66:6E:44:5D:75
-        Signature algorithm name: SHA1withRSA
-        Version: 3
-    ```
-
+    
 The line that begins with SHA1 contains the certificate's SHA-1 fingerprint.
 
 ##### 2. Request an OAuth 2.0 client ID in the Google API Console :
