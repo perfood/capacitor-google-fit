@@ -3,6 +3,7 @@ package com.adscientiam.capacitor.googlefit;
 import android.content.Intent;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
@@ -11,6 +12,8 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.Bucket;
@@ -36,19 +39,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.text.DateFormat.getTimeInstance;
+
 @NativePlugin(
   requestCodes = {
-    GoogleFit.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE
+    GoogleFit.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
+    GoogleFit.RC_SIGN_IN
   }
 )
 public class GoogleFit extends Plugin {
 
   public static final String TAG = "HistoryApi";
   static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 19849;
+  static final int RC_SIGN_IN = 1337;
   private int steps, calories, todayStep, todayCal;
   private float weight, height, distances, todayDist;
-
-  public GoogleFit() { }
 
   private FitnessOptions getFitnessSignInOptions() {
     // FitnessOptions instance, declaring the Fit API data types
@@ -57,8 +62,9 @@ public class GoogleFit extends Plugin {
       .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
       .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
       .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-      .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_WRITE)
-      .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_WRITE)
+      .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
       .build();
   }
 
@@ -72,6 +78,7 @@ public class GoogleFit extends Plugin {
     // otherwise authenticate the user and request required permissions.
     FitnessOptions fitnessOptions = getFitnessSignInOptions();
     GoogleSignInAccount account = getAccount();
+    final JSObject result = new JSObject();
 
     if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
       saveCall(call);
@@ -83,6 +90,7 @@ public class GoogleFit extends Plugin {
     } else {
       subscribe();
     }
+
   }
 
   @Override
@@ -94,9 +102,16 @@ public class GoogleFit extends Plugin {
     if (savedCall == null) {
       return;
     }
+
     if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-      subscribe();
+    Log.i(TAG, "accessing to google fit");
+    subscribe();
     }
+
+    if (requestCode == RC_SIGN_IN) {
+      Log.i(TAG, "accessing to google fit");
+    }
+
   }
 
   private void subscribe() {
@@ -114,14 +129,14 @@ public class GoogleFit extends Plugin {
           public void onSuccess(Void aVoid) {
           }
         });
-    } else {
     }
   }
 
   @PluginMethod()
   public void getAccountData(final PluginCall call) {
     final GoogleSignInAccount account = getAccount();
-    if (account != null) {
+    final JSObject result = new JSObject();
+    if (account != null && account.getId() != null ) {
       getWeightAndHeight().addOnCompleteListener(new OnCompleteListener<DataReadResponse>() {
         @Override
         public void onComplete(@NonNull Task<DataReadResponse> task) {
@@ -130,8 +145,7 @@ public class GoogleFit extends Plugin {
           String givenName = account.getGivenName();
           String familyName = account.getFamilyName();
           String email = account.getEmail();
-          JSObject result = new JSObject();
-
+          result.put("message", "account available");
           result.put("id", personId);
           result.put("displayName", displayName);
           result.put("givenName", givenName);
@@ -143,6 +157,16 @@ public class GoogleFit extends Plugin {
         }
       });
     } else {
+      result.put("message", "account not available");
+      call.resolve(result);
+      // Configure sign-in to request the user's ID, email address, and basic
+      // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+      GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestEmail()
+        .build();
+      GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
+      Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+      startActivityForResult(call, signInIntent, RC_SIGN_IN);
     }
   }
 
@@ -168,6 +192,7 @@ public class GoogleFit extends Plugin {
       .addOnFailureListener(new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception e) {
+          Log.i(TAG, e.getMessage());
         }
       });
 
@@ -361,9 +386,17 @@ public class GoogleFit extends Plugin {
   }
 
   private void showDataSet(DataSet dataSet) {
+    Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
+    DateFormat dateFormat = getTimeInstance();
+
     for (DataPoint dp : dataSet.getDataPoints()) {
+      Log.i(TAG, "Data point:");
+      Log.i(TAG, "\tType: " + dp.getDataType().getName());
+      Log.i(TAG, "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
+      Log.i(TAG, "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
 
       for (Field field : dp.getDataType().getFields()) {
+        Log.i(TAG, "\tField: " + field.getName() + " Value: " + dp.getValue(field));
         switch (field.getName()) {
           case "weight":
             weight = dp.getValue(Field.FIELD_WEIGHT).asFloat();
