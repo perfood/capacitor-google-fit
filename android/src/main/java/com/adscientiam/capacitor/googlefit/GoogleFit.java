@@ -2,7 +2,7 @@ package com.adscientiam.capacitor.googlefit;
 
 import android.content.Intent;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.getcapacitor.JSObject;
@@ -89,6 +89,9 @@ public class GoogleFit extends Plugin {
         fitnessOptions);
     } else {
       subscribe();
+      JSObject ret = new JSObject();
+      ret.put("THIS", "WORKS");
+      call.resolve(ret);
     }
 
   }
@@ -277,40 +280,48 @@ public class GoogleFit extends Plugin {
       .enableServerQueries()
       .build();
 
-    Fitness.getHistoryClient(getActivity(), account).readData(readRequest)
-      .addOnSuccessListener(new OnSuccessListener<DataReadResponse>() {
-        @Override
-        public void onSuccess(DataReadResponse dataReadResponse) {
-          // Used for aggregated data
-          if (dataReadResponse.getBuckets().size() > 0) {
-            for (Bucket bucket : dataReadResponse.getBuckets()) {
-              List<DataSet> dataSets = bucket.getDataSets();
-              for (DataSet dataSet : dataSets) {
+    try {
+      Fitness.getHistoryClient(getActivity(), account).readData(readRequest)
+        .addOnSuccessListener(new OnSuccessListener<DataReadResponse>() {
+          @Override
+          public void onSuccess(DataReadResponse dataReadResponse) {
+            // Used for aggregated data
+            if (dataReadResponse.getBuckets().size() > 0) {
+              for (Bucket bucket : dataReadResponse.getBuckets()) {
+                List<DataSet> dataSets = bucket.getDataSets();
+                for (DataSet dataSet : dataSets) {
+                  showDataSet(dataSet);
+                }
+              }
+              //Used for non-aggregated data
+            } else if (dataReadResponse.getDataSets().size() > 0) {
+              for (DataSet dataSet : dataReadResponse.getDataSets()) {
                 showDataSet(dataSet);
               }
             }
-            //Used for non-aggregated data
-          } else if (dataReadResponse.getDataSets().size() > 0) {
-            for (DataSet dataSet : dataReadResponse.getDataSets()) {
-              showDataSet(dataSet);
-            }
           }
-        }
-      })
-      .addOnFailureListener(new OnFailureListener() {
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+            JSObject result = new JSObject();
+            Log.i(TAG, e.getMessage());
+            call.reject(e.getMessage());
+          }
+        }).addOnCompleteListener(new OnCompleteListener<DataReadResponse>() {
         @Override
-        public void onFailure(@NonNull Exception e) {
+        public void onComplete(@NonNull Task<DataReadResponse> task) {
+          JSObject result = new JSObject();
+          result.put("steps", steps);
+          result.put("distances", distances);
+          result.put("calories", calories);
+          call.resolve(result);
         }
-      }).addOnCompleteListener(new OnCompleteListener<DataReadResponse>() {
-      @Override
-      public void onComplete(@NonNull Task<DataReadResponse> task) {
-        JSObject result = new JSObject();
-        result.put("steps", steps);
-        result.put("distances", distances);
-        result.put("calories", calories);
-        call.resolve(result);
-      }
-    });
+      });
+    } catch(NullPointerException e) {
+      call.reject("Permission not granted");
+      return;
+    }
   }
 
   @PluginMethod()
