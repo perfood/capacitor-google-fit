@@ -264,7 +264,7 @@ public class GoogleFit extends Plugin {
       return;
     }
 
-    SimpleDateFormat f = new SimpleDateFormat("EEE MMM d yyyy");
+    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     Date startDate = f.parse(startTime);
     Date endDate = f.parse(endTime);
     long start = startDate.getTime();
