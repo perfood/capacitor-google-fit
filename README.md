@@ -4,8 +4,7 @@ Capacitor plugin to retrieve data from Google Fit
 ### Install
 ```
 npm i --save capacitor-google-fit
-npx cap update
-
+npx cap sync
 ```
 ### Android requirement
 In order for your app to communicate properly with the Google Fitness API, you need to provide the SHA1 sum of the certificate used for signing your application to Google. This will enable the GoogleFit plugin to communicate with the Fit application in each smartphone where the application is installed.
@@ -55,6 +54,8 @@ An OAuth 2.0 Client ID is a string of characters, something like this:
 ### Set up in Android
 Register plugin inside your MainActivity.onCreate
 ```
+import com.adscientiam.capacitor.googlefit.GoogleFit;
+
 this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
   add(GoogleFit.class);
 }});
@@ -64,7 +65,6 @@ this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
 ```
 import { Plugins } from '@capacitor/core';
 const { GoogleFit } = Plugins;
-
 ```
 
 ### Supported data types :
@@ -102,8 +102,7 @@ Example:
       endTime: this.endDate
     });
     console.log(result);
-  }
-    
+  } 
 ```
 
 #### getHistoryActivity()
