@@ -1,8 +1,14 @@
-# [0.1.0](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.1.0...v0.1.0) (2020-08-28)
+# [0.1.1](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.1.0...v0.1.1) (2020-10-14)
+
+### WIP
+
+* **android:** getHistoryActivity() resolve and try to fetch sessions (WIP)
+
+# [0.1.0](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.0.6...v0.1.0) (2020-08-28)
 
 ### Fixed
 
-* **andoird:** connectToGoogleFit() resolve promise normally
+* **android:** connectToGoogleFit() resolve promise normally
 
 # [0.0.6](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.0.5...v0.0.6) (2020-01-07)
 

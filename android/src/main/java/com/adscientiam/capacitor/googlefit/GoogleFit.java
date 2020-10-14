@@ -22,13 +22,17 @@ import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
+import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.DataReadRequest;
+import com.google.android.gms.fitness.request.SessionReadRequest;
 import com.google.android.gms.fitness.result.DataReadResponse;
+import com.google.android.gms.fitness.result.SessionReadResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,6 +55,7 @@ import static java.text.DateFormat.getTimeInstance;
 public class GoogleFit extends Plugin {
 
     public static final String TAG = "HistoryApi";
+    public static final String SAMPLE_SESSION_NAME = "SampleSessionName";
     static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 19849;
     static final int RC_SIGN_IN = 1337;
     private int steps, calories, todayStep, todayCal;
@@ -294,65 +299,54 @@ public class GoogleFit extends Plugin {
     }
 
     @PluginMethod()
-    public void getHistoryActivity(final PluginCall call) throws ParseException {
+    public Task<SessionReadResponse> getHistoryActivity(final PluginCall call) throws ParseException {
         GoogleSignInAccount account = getAccount();
-        final JSONObject activityObj = new JSONObject();
-        String startTime = call.getString("startTime");
-        String endTime = call.getString("endTime");
 
-        if (!call.getData().has("startTime")) {
-            call.reject("Must provide a start time");
-            return;
+       String startTimeStr = call.getString("startTime");
+        String endTimeStr = call.getString("endTime");
+        if (startTimeStr.isEmpty() || endTimeStr.isEmpty()) {
+            call.reject("Must provide a start time and end time");
+            return null;
         }
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        long startTime = f.parse(startTimeStr).getTime();
+        long endTime = f.parse(endTimeStr).getTime();
 
-        SimpleDateFormat f = new SimpleDateFormat("EEE MMM d yyyy");
-        Date startDate = f.parse(startTime);
-        Date endDate = f.parse(endTime);
-        long start = startDate.getTime();
-        long end = endDate.getTime();
-
-        DataReadRequest readRequest = new DataReadRequest.Builder()
-                .aggregate(DataType.TYPE_DISTANCE_DELTA, DataType.AGGREGATE_DISTANCE_DELTA)
-                .aggregate(DataType.TYPE_CALORIES_EXPENDED, DataType.AGGREGATE_CALORIES_EXPENDED)
-                .bucketByActivityType(1, TimeUnit.MINUTES)
-                .setTimeRange(start, end, TimeUnit.MILLISECONDS)
+        SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                .read(DataType.TYPE_SPEED)
+                .read(DataType.TYPE_ACTIVITY_SEGMENT)
                 .enableServerQueries()
                 .build();
 
-        Fitness.getHistoryClient(getActivity(), account).readData(readRequest)
-                .addOnSuccessListener(new OnSuccessListener<DataReadResponse>() {
+        return Fitness.getSessionsClient(getActivity(), account).readSession(readRequest)
+                .addOnSuccessListener(new OnSuccessListener<SessionReadResponse>() {
                     @Override
-                    public void onSuccess(DataReadResponse dataReadResponse) {
-                        // Each buckets represent activity
-                        if (dataReadResponse.getBuckets().size() > 0) {
-                            for (int i = 0; i < dataReadResponse.getBuckets().size(); i++) {
-                                String activity = dataReadResponse.getBuckets().get(i).getActivity();
-                                String startTime = getDate(dataReadResponse.getBuckets().get(i).getStartTime(TimeUnit.MILLISECONDS));
-                                String endTime = getDate(dataReadResponse.getBuckets().get(i).getEndTime(TimeUnit.MILLISECONDS));
-
-                                try {
-                                    JSONObject summary = new JSONObject();
-                                    summary.put("start", startTime);
-                                    summary.put("end", endTime);
-                                    activityObj.put(activity, summary);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                    public void onSuccess(SessionReadResponse sessionReadResponse) {
+                        List<Session> sessions = sessionReadResponse.getSessions();
+                        JSONArray activities = new JSONArray();
+                        Log.i(TAG, "Sessions:");
+                        Log.i(TAG, "\tSize: " + sessions.size());
+                        for (Session session : sessions) {
+                            try {
+                                JSONObject summary = new JSONObject();
+                                summary.put("start", getDate(session.getStartTime(TimeUnit.MILLISECONDS)));
+                                summary.put("end", getDate(session.getEndTime(TimeUnit.MILLISECONDS)));
+                                summary.put("activity", session.getActivity());
+                                activities.put(summary);
+                            } catch (JSONException e) {
+                                call.error(e.getMessage());
                             }
                         }
+                        JSObject result = new JSObject();
+                        result.put("activities", activities);
+                        call.resolve(result);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                    }
-                })
-                .addOnCompleteListener(new OnCompleteListener<DataReadResponse>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataReadResponse> task) {
-                        JSObject result = new JSObject();
-                        result.put("activity", activityObj);
-                        call.resolve(result);
+                        call.error(e.getMessage());
                     }
                 });
     }
