@@ -20,18 +20,11 @@ export interface GoogleFitPlugin {
   connectToGoogleFit(): Promise<void>;
 
   /**
-   * Get account data
+   * Returns wether the permissions are ok or not
    * @returns {Promise}
-   * @resolve AccountData
+   * @resolve any
    */
-  getAccountData(): Promise<AccountData>;
-
-  /**
-   * Get today data
-   * @returns {Promise}
-   * @resolve AccountData
-   */
-  getTodayData(): Promise<any>;
+  isAllowed(): Promise<any>;
 
   /**
    * Get history

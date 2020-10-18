@@ -1,3 +1,18 @@
+# [0.2.0](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.1.1...v0.2.0) (2020-10-19)
+
+### Added
+
+* **android:** added isAllowed() method which return a boolean
+
+### Fixed
+
+* **android:** getHistoryActivity() resolve and returns list of activities
+* **android:** getHistory() resolve and returns a list of daily aggregated data
+
+### Removed
+
+* **android:** Remove getAccountData() and getTodayData() due to lack of support, feel free to contribute if needed!
+
 # [0.1.1](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.1.0...v0.1.1) (2020-10-14)
 
 ### WIP

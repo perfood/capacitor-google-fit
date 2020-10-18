@@ -94,12 +94,11 @@ Example:
 ```
   async getHistory() {
     const today = new Date();
-    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-    this.startDate = lastWeek.toDateString();
-    this.endDate = today.toDateString();
+    const lastWeek = new Date(today);
+    lastWeek.setDate(lastWeek.getDate() - 7);
     const result = await GoogleFit.getHistory({
-      startTime: this.startDate,
-      endTime: this.endDate
+      startTime: lastWeek,
+      endTime: today
     });
     console.log(result);
   } 
@@ -110,29 +109,3 @@ Same as getHistory() method but this time to retrieve activities
 Returned objects contain a set of fixed fields for each activity:
 - startDate: {type: String} a date indicating when an activity starts
 - endDate: {type: String} a date indicating when an activity ends
-
-#### getAccountData()
-Methode to get user informations as shown in Google Fit profile page :
-```
-  async getAccountData() {
-      let result = await GoogleFit.getAccountData();
-      console.log(result);
-      this.displayName = result.displayName;
-      this.email = result.email;
-      this.weight = result.weight;
-      this.height = result.height;
-  }
-```
-
-#### getTodayData()
-Method to get today's data such as total steps, calories and distances travelled.
-```
-  async getTodayData() {
-    let result =  await GoogleFit.getTodayData();
-    console.log(result);
-    this.todayStep = result.todayStep;
-    this.todayCal = result.todayCal;
-    this.todayDist = result.todayDist;
-  }
-```
-
