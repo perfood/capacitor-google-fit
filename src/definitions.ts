@@ -4,13 +4,6 @@ declare module "@capacitor/core" {
   }
 }
 
-class AccountData {
-  displayName: string;
-  email: string;
-  weight: number;
-  height: number
-}
-
 export interface GoogleFitPlugin {
   /**
    * Connect to Google Fit

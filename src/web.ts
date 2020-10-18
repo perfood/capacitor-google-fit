@@ -1,13 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 import { GoogleFitPlugin } from './definitions';
 
-class AccountData {
-  displayName: string;
-  email: string;
-  weight: number;
-  height: number
-}
-
 export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
   constructor() {
     super({
@@ -15,14 +8,11 @@ export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
       platforms: ['web']
     });
   }
-  
+
   async connectToGoogleFit(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  async getAccountData(): Promise<AccountData> {
-    throw new Error("Method not implemented.");
-  }
-  async getTodayData(): Promise<any> {
+  async isAllowed(): Promise<void> {
     throw new Error("Method not implemented.");
   }
   async getHistory(): Promise<any> {
