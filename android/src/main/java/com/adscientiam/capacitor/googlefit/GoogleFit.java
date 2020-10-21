@@ -83,7 +83,7 @@ public class GoogleFit extends Plugin {
     public void isAllowed(PluginCall call) {
         final JSObject result = new JSObject();
         GoogleSignInAccount account = getAccount();
-        if (!account.isExpired() && GoogleSignIn.hasPermissions(getAccount(), getFitnessSignInOptions())) {
+        if (account != null && !account.isExpired() && GoogleSignIn.hasPermissions(getAccount(), getFitnessSignInOptions())) {
             result.put("allowed", true);
         } else {
             result.put("allowed", false);

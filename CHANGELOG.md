@@ -1,3 +1,9 @@
+# [0.2.1](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.2.0...v0.2.1) (2020-10-19)
+
+### Fixed
+
+* **android:** prevent null exception in isAllowed()
+
 # [0.2.0](https://github.com/Ad-Scientiam/capacitor-google-fit/compare/v0.1.1...v0.2.0) (2020-10-19)
 
 ### Added
