@@ -1,6 +1,6 @@
 {
   "name": "capacitor-google-fit",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Capacitor plugin to use google fit",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",

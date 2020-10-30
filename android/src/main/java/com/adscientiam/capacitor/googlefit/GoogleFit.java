@@ -99,7 +99,7 @@ public class GoogleFit extends Plugin {
     public void isAllowed(PluginCall call) {
         final JSObject result = new JSObject();
         GoogleSignInAccount account = getAccount();
-        if (account != null && !account.isExpired() && GoogleSignIn.hasPermissions(getAccount(), getFitnessSignInOptions())) {
+        if (account != null && GoogleSignIn.hasPermissions(account, getFitnessSignInOptions())) {
             result.put("allowed", true);
         } else {
             result.put("allowed", false);
@@ -115,7 +115,12 @@ public class GoogleFit extends Plugin {
         if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
             savedCall.resolve();
         } else if (requestCode == RC_SIGN_IN) {
-            this.requestPermissions();
+            if (!GoogleSignIn.hasPermissions(this.getAccount(), getFitnessSignInOptions())) {
+                this.requestPermissions();
+            } else {
+                savedCall.resolve();
+            }
+
         }
     }
 
