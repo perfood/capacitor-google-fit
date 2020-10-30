@@ -13,6 +13,8 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.Bucket;
@@ -69,14 +71,28 @@ public class GoogleFit extends Plugin {
         return GoogleSignIn.getLastSignedInAccount(getActivity());
     }
 
-    @PluginMethod()
-    public void connectToGoogleFit(PluginCall call) {
-        saveCall(call);
+    private void requestPermissions() {
         GoogleSignIn.requestPermissions(
                 getActivity(),
                 GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
                 getAccount(),
                 getFitnessSignInOptions());
+    }
+
+    @PluginMethod()
+    public void connectToGoogleFit(PluginCall call) {
+        saveCall(call);
+        GoogleSignInAccount account = getAccount();
+        if (account == null) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
+            GoogleSignInClient signInClient = GoogleSignIn.getClient(this.getActivity(), gso);
+            Intent intent = signInClient.getSignInIntent();
+            startActivityForResult(call, intent, RC_SIGN_IN);
+        } else {
+            this.requestPermissions();
+        }
     }
 
     @PluginMethod()
@@ -98,12 +114,19 @@ public class GoogleFit extends Plugin {
 
         if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
             savedCall.resolve();
+        } else if (requestCode == RC_SIGN_IN) {
+            this.requestPermissions();
         }
     }
 
     @PluginMethod()
     public Task<DataReadResponse> getHistory(final PluginCall call) throws ParseException {
         GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
 
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
@@ -173,6 +196,11 @@ public class GoogleFit extends Plugin {
     @PluginMethod()
     public Task<DataReadResponse> getHistoryActivity(final PluginCall call) throws ParseException {
         final GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
 
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
