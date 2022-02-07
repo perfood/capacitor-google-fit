@@ -17,7 +17,7 @@ npx cap sync
 * [`connectToGoogleFit()`](#connecttogooglefit)
 * [`isAllowed()`](#isallowed)
 * [`getHistory(...)`](#gethistory)
-* [`getHistoryActivity()`](#gethistoryactivity)
+* [`getHistoryActivity(...)`](#gethistoryactivity)
 * [Interfaces](#interfaces)
 
 </docgen-index>
@@ -67,34 +67,57 @@ Returns wether the permissions are ok or not
 ### getHistory(...)
 
 ```typescript
-getHistory(call: { startTime: Date; endTime: Date; }) => Promise<any>
+getHistory(call: QueryInput) => Promise<HistoryData>
 ```
 
 Get history
 
-| Param      | Type                                                                                     |
-| ---------- | ---------------------------------------------------------------------------------------- |
-| **`call`** | <code>{ startTime: <a href="#date">Date</a>; endTime: <a href="#date">Date</a>; }</code> |
+| Param      | Type                                              |
+| ---------- | ------------------------------------------------- |
+| **`call`** | <code><a href="#queryinput">QueryInput</a></code> |
 
-**Returns:** <code>Promise&lt;any&gt;</code>
+**Returns:** <code>Promise&lt;<a href="#historydata">HistoryData</a>&gt;</code>
 
 --------------------
 
 
-### getHistoryActivity()
+### getHistoryActivity(...)
 
 ```typescript
-getHistoryActivity() => Promise<any>
+getHistoryActivity(call: QueryInput) => Promise<HistoryActivityData>
 ```
 
 Get history activity
 
-**Returns:** <code>Promise&lt;any&gt;</code>
+| Param      | Type                                              |
+| ---------- | ------------------------------------------------- |
+| **`call`** | <code><a href="#queryinput">QueryInput</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#historyactivitydata">HistoryActivityData</a>&gt;</code>
 
 --------------------
 
 
 ### Interfaces
+
+
+#### HistoryData
+
+| Prop           | Type                |
+| -------------- | ------------------- |
+| **`start`**    | <code>string</code> |
+| **`end`**      | <code>string</code> |
+| **`distance`** | <code>string</code> |
+| **`speed`**    | <code>string</code> |
+| **`calories`** | <code>string</code> |
+
+
+#### QueryInput
+
+| Prop            | Type                                  |
+| --------------- | ------------------------------------- |
+| **`startTime`** | <code><a href="#date">Date</a></code> |
+| **`endTime`**   | <code><a href="#date">Date</a></code> |
 
 
 #### Date
@@ -146,5 +169,17 @@ Enables basic storage and retrieval of dates and times.
 | **toUTCString**        | () =&gt; string                                                                                              | Returns a date converted to a string using Universal Coordinated Time (UTC).                                                            |
 | **toISOString**        | () =&gt; string                                                                                              | Returns a date as a string value in ISO format.                                                                                         |
 | **toJSON**             | (key?: any) =&gt; string                                                                                     | Used by the JSON.stringify method to enable the transformation of an object's data for JavaScript Object Notation (JSON) serialization. |
+
+
+#### HistoryActivityData
+
+| Prop           | Type                |
+| -------------- | ------------------- |
+| **`start`**    | <code>string</code> |
+| **`end`**      | <code>string</code> |
+| **`distance`** | <code>string</code> |
+| **`speed`**    | <code>string</code> |
+| **`calories`** | <code>string</code> |
+| **`activity`** | <code>string</code> |
 
 </docgen-api>
