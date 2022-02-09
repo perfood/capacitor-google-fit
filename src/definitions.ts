@@ -5,8 +5,6 @@ declare module "@capacitor/core" {
 }
 
 export interface GoogleFitPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
-
   /**
    * Connect to Google Fit
    * @returns {Promise}

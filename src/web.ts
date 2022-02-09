@@ -9,11 +9,7 @@ export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
       platforms: ['web']
     });
   }
-  
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
-  }
+
   async connectToGoogleFit(): Promise<void> {
     throw new Error("Method not implemented.");
   }

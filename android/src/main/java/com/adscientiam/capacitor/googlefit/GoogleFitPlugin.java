@@ -48,14 +48,6 @@ public class GoogleFitPlugin extends Plugin {
     static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 19849;
     static final int RC_SIGN_IN = 1337;
 
-    @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
-        JSObject ret = new JSObject();
-        //ret.put("value", implementation.echo(value));
-        call.resolve(ret);
-    }
 
     private FitnessOptions getFitnessSignInOptions() {
         // FitnessOptions instance, declaring the Fit API data types
