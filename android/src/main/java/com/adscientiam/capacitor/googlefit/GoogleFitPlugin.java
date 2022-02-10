@@ -219,6 +219,7 @@ public class GoogleFitPlugin extends Plugin {
                 .aggregate(DataType.TYPE_SPEED)
                 .aggregate(DataType.TYPE_CALORIES_EXPENDED)
                 .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+                .aggregate(DataType.TYPE_WEIGHT)
                 .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
                 .bucketByActivitySegment(1, TimeUnit.MINUTES)
                 .enableServerQueries()
@@ -247,6 +248,9 @@ public class GoogleFitPlugin extends Plugin {
                                                 break;
                                             case "com.google.calories.expended":
                                                 summary.put("calories", dataSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES));
+                                                break;
+                                            case "com.google.weight.summary":
+                                                summary.put("weight", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
                                                 break;
                                             default:
                                                 Log.i(TAG, "need to handle " + dataSet.getDataType().getName());

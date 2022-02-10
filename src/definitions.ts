@@ -71,4 +71,5 @@ export interface HistoryActivityData{
   speed?: string;
   calories?: string;
   activity?: string;
+  weight?: string;
 }
