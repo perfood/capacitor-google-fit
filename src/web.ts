@@ -13,7 +13,7 @@ export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
   async connectToGoogleFit(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  async isAllowed(): Promise<void> {
+  async isAllowed(): Promise<any> {
     throw new Error("Method not implemented.");
   }
   async getHistory(): Promise<any> {

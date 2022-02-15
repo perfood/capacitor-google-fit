@@ -15,23 +15,23 @@ export interface GoogleFitPlugin {
   /**
    * Returns wether the permissions are ok or not
    * @returns {Promise}
-   * @resolve any
+   * @resolve AllowedResult
    */
-  isAllowed(): Promise<any>;
+  isAllowed(): Promise<AllowedResult>;
 
   /**
    * Get history
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistory(call: QueryInput): Promise<HistoryData>;
+  getHistory(call: QueryInput): Promise<DayContainer>;
 
   /**
    * Get history activity
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistoryActivity(call: QueryInput): Promise<HistoryActivityData>;
+  getHistoryActivity(call: QueryInput): Promise<ActivityContainer>;
 }
 
 
@@ -44,8 +44,13 @@ export interface QueryInput{
   endTime: Date;
 }
 
-export interface Activities{
+export interface ActivityContainer{
   activities: HistoryActivityData[]
+}
+
+
+export interface DayContainer{
+  days: HistoryData[]
 }
 
 export interface HistoryData{
@@ -72,4 +77,8 @@ export interface HistoryActivityData{
   calories?: string;
   activity?: string;
   weight?: string;
+}
+
+export interface AllowedResult{
+  allowed: boolean;
 }
