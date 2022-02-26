@@ -1,11 +1,8 @@
 package com.adscientiam.capacitor.googlefit;
 
 import android.content.Intent;
-
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
@@ -26,24 +23,17 @@ import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-@NativePlugin(
-        requestCodes = {
-                GoogleFit.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                GoogleFit.RC_SIGN_IN
-        }
-)
+@NativePlugin(requestCodes = { GoogleFit.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFit.RC_SIGN_IN })
 public class GoogleFit extends Plugin {
 
     public static final String TAG = "HistoryApi";
@@ -53,18 +43,19 @@ public class GoogleFit extends Plugin {
     private FitnessOptions getFitnessSignInOptions() {
         // FitnessOptions instance, declaring the Fit API data types
         // and access required
-        return FitnessOptions.builder()
-                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
-                .build();
+        return FitnessOptions
+            .builder()
+            .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+            .build();
     }
 
     private GoogleSignInAccount getAccount() {
@@ -72,21 +63,15 @@ public class GoogleFit extends Plugin {
     }
 
     private void requestPermissions() {
-        GoogleSignIn.requestPermissions(
-                getActivity(),
-                GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                getAccount(),
-                getFitnessSignInOptions());
+        GoogleSignIn.requestPermissions(getActivity(), GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, getAccount(), getFitnessSignInOptions());
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void connectToGoogleFit(PluginCall call) {
         saveCall(call);
         GoogleSignInAccount account = getAccount();
         if (account == null) {
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestEmail()
-                    .build();
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
             GoogleSignInClient signInClient = GoogleSignIn.getClient(this.getActivity(), gso);
             Intent intent = signInClient.getSignInIntent();
             startActivityForResult(call, intent, RC_SIGN_IN);
@@ -95,7 +80,7 @@ public class GoogleFit extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void isAllowed(PluginCall call) {
         final JSObject result = new JSObject();
         GoogleSignInAccount account = getAccount();
@@ -120,11 +105,10 @@ public class GoogleFit extends Plugin {
             } else {
                 savedCall.resolve();
             }
-
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public Task<DataReadResponse> getHistory(final PluginCall call) throws ParseException {
         GoogleSignInAccount account = getAccount();
 
@@ -141,18 +125,21 @@ public class GoogleFit extends Plugin {
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
-                .aggregate(DataType.TYPE_DISTANCE_DELTA)
-                .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
-                .aggregate(DataType.TYPE_SPEED)
-                .aggregate(DataType.TYPE_CALORIES_EXPENDED)
-                .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
-                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-                .bucketByTime(1, TimeUnit.DAYS)
-                .enableServerQueries()
-                .build();
+            .aggregate(DataType.TYPE_DISTANCE_DELTA)
+            .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
+            .aggregate(DataType.TYPE_SPEED)
+            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
+            .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .bucketByTime(1, TimeUnit.DAYS)
+            .enableServerQueries()
+            .build();
 
-        return Fitness.getHistoryClient(getActivity(), account).readData(readRequest)
-                .addOnSuccessListener(new OnSuccessListener<DataReadResponse>() {
+        return Fitness
+            .getHistoryClient(getActivity(), account)
+            .readData(readRequest)
+            .addOnSuccessListener(
+                new OnSuccessListener<DataReadResponse>() {
                     @Override
                     public void onSuccess(DataReadResponse dataReadResponse) {
                         List<Bucket> buckets = dataReadResponse.getBuckets();
@@ -190,15 +177,19 @@ public class GoogleFit extends Plugin {
                         result.put("days", days);
                         call.resolve(result);
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+                }
+            )
+            .addOnFailureListener(
+                new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         call.reject(e.getMessage());
                     }
-                });
+                }
+            );
     }
 
-    @PluginMethod()
+    @PluginMethod
     public Task<DataReadResponse> getHistoryActivity(final PluginCall call) throws ParseException {
         final GoogleSignInAccount account = getAccount();
 
@@ -215,18 +206,21 @@ public class GoogleFit extends Plugin {
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
-                .aggregate(DataType.TYPE_DISTANCE_DELTA)
-                .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
-                .aggregate(DataType.TYPE_SPEED)
-                .aggregate(DataType.TYPE_CALORIES_EXPENDED)
-                .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
-                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-                .bucketByActivitySegment(1, TimeUnit.MINUTES)
-                .enableServerQueries()
-                .build();
+            .aggregate(DataType.TYPE_DISTANCE_DELTA)
+            .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
+            .aggregate(DataType.TYPE_SPEED)
+            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
+            .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .bucketByActivitySegment(1, TimeUnit.MINUTES)
+            .enableServerQueries()
+            .build();
 
-        return Fitness.getHistoryClient(getActivity(), account).readData(readRequest)
-                .addOnSuccessListener(new OnSuccessListener<DataReadResponse>() {
+        return Fitness
+            .getHistoryClient(getActivity(), account)
+            .readData(readRequest)
+            .addOnSuccessListener(
+                new OnSuccessListener<DataReadResponse>() {
                     @Override
                     public void onSuccess(DataReadResponse dataReadResponse) {
                         List<Bucket> buckets = dataReadResponse.getBuckets();
@@ -265,7 +259,8 @@ public class GoogleFit extends Plugin {
                         result.put("activities", activities);
                         call.resolve(result);
                     }
-                });
+                }
+            );
     }
 
     private String timestampToDate(long timestamp) {
