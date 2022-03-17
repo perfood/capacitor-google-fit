@@ -68,7 +68,6 @@ public class GoogleFit extends Plugin {
 
     @PluginMethod
     public void connectToGoogleFit(PluginCall call) {
-        saveCall(call);
         GoogleSignInAccount account = getAccount();
         if (account == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -78,6 +77,7 @@ public class GoogleFit extends Plugin {
         } else {
             this.requestPermissions();
         }
+        call.resolve();
     }
 
     @PluginMethod
