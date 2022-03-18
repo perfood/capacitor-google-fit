@@ -58,7 +58,7 @@ The line that begins with SHA1 contains the certificate's SHA-1 fingerprint.
 
 8. Click Create. Your new Android OAuth 2.0 Client ID and secret appear in the list of IDs for your project.
    An OAuth 2.0 Client ID is a string of characters, something like this:
-   ` 780816631155-gbvyo1o7r2pn95qc4ei9d61io4uh48hl.apps.googleusercontent.com `
+   `780816631155-gbvyo1o7r2pn95qc4ei9d61io4uh48hl.apps.googleusercontent.com`
 
 ### Set up in Android
 
