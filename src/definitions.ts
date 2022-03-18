@@ -34,26 +34,24 @@ export interface GoogleFitPlugin {
   getHistoryActivity(call: QueryInput): Promise<ActivityContainer>;
 }
 
-
-export interface PermissionData{
+export interface PermissionData {
   allowed: boolean;
 }
 
-export interface QueryInput{
+export interface QueryInput {
   startTime: Date;
   endTime: Date;
 }
 
-export interface ActivityContainer{
-  activities: HistoryActivityData[]
+export interface ActivityContainer {
+  activities: HistoryActivityData[];
 }
 
-
-export interface DayContainer{
-  days: HistoryData[]
+export interface DayContainer {
+  days: HistoryData[];
 }
 
-export interface HistoryData{
+export interface HistoryData {
   start: string;
   end: string;
   /**
@@ -69,7 +67,7 @@ export interface HistoryData{
   calories: string;
 }
 
-export interface HistoryActivityData{
+export interface HistoryActivityData {
   start: string;
   end: string;
   distance?: string;
@@ -79,6 +77,6 @@ export interface HistoryActivityData{
   weight?: string;
 }
 
-export interface AllowedResult{
+export interface AllowedResult {
   allowed: boolean;
 }
