@@ -1,4 +1,4 @@
-declare module "@capacitor/core" {
+declare module '@capacitor/core' {
   interface PluginRegistry {
     GoogleFit: GoogleFitPlugin;
   }
@@ -15,40 +15,43 @@ export interface GoogleFitPlugin {
   /**
    * Returns wether the permissions are ok or not
    * @returns {Promise}
-   * @resolve any
+   * @resolve AllowedResult
    */
-  isAllowed(): Promise<any>;
+  isAllowed(): Promise<AllowedResult>;
 
   /**
    * Get history
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistory(call: QueryInput): Promise<HistoryData>;
+  getHistory(call: QueryInput): Promise<DayContainer>;
 
   /**
    * Get history activity
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistoryActivity(call: QueryInput): Promise<HistoryActivityData>;
+  getHistoryActivity(call: QueryInput): Promise<ActivityContainer>;
 }
 
-
-export interface PermissionData{
+export interface PermissionData {
   allowed: boolean;
 }
 
-export interface QueryInput{
+export interface QueryInput {
   startTime: Date;
   endTime: Date;
 }
 
-export interface Activities{
-  activities: HistoryActivityData[]
+export interface ActivityContainer {
+  activities: HistoryActivityData[];
 }
 
-export interface HistoryData{
+export interface DayContainer {
+  days: HistoryData[];
+}
+
+export interface HistoryData {
   start: string;
   end: string;
   /**
@@ -64,11 +67,16 @@ export interface HistoryData{
   calories: string;
 }
 
-export interface HistoryActivityData{
+export interface HistoryActivityData {
   start: string;
   end: string;
   distance?: string;
   speed?: string;
   calories?: string;
   activity?: string;
+  weight?: string;
+}
+
+export interface AllowedResult {
+  allowed: boolean;
 }

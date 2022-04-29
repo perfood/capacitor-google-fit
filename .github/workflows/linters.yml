@@ -1,0 +1,17 @@
+name: Linters
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  linters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - run: npm install
+      - name: Check Prettier
+        run: npm run prettier
