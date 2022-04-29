@@ -24,12 +24,51 @@ export interface GoogleFitPlugin {
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistory(): Promise<any>;
+  getHistory(call: QueryInput): Promise<HistoryData>;
 
   /**
    * Get history activity
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistoryActivity(): Promise<any>;
+  getHistoryActivity(call: QueryInput): Promise<HistoryActivityData>;
+}
+
+
+export interface PermissionData{
+  allowed: boolean;
+}
+
+export interface QueryInput{
+  startTime: Date;
+  endTime: Date;
+}
+
+export interface Activities{
+  activities: HistoryActivityData[]
+}
+
+export interface HistoryData{
+  start: string;
+  end: string;
+  /**
+  Distance travelled in meters.
+  Valid range: 0—100 meters per second
+   */
+  distance: string;
+  /**meters per second */
+  speed: string;
+  /*
+  This data type captures the total calories (in kilocalories) burned by the user, including calories burned at rest (BMR or Basalrate)!
+  */
+  calories: string;
+}
+
+export interface HistoryActivityData{
+  start: string;
+  end: string;
+  distance?: string;
+  speed?: string;
+  calories?: string;
+  activity?: string;
 }
