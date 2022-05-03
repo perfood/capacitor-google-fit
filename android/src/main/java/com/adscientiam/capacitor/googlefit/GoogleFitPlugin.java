@@ -35,7 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 @CapacitorPlugin(name = "GoogleFit")
-@NativePlugin(requestCodes = { GoogleFit.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFit.RC_SIGN_IN })
+@NativePlugin(requestCodes = { GoogleFitPlugin.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFitPlugin.RC_SIGN_IN })
 public class GoogleFitPlugin extends Plugin {
 
     public static final String TAG = "HistoryApi";

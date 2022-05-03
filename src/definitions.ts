@@ -1,9 +1,3 @@
-declare module '@capacitor/core' {
-  interface PluginRegistry {
-    GoogleFit: GoogleFitPlugin;
-  }
-}
-
 export interface GoogleFitPlugin {
   /**
    * Connect to Google Fit
