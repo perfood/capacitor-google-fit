@@ -43,7 +43,7 @@ The line that begins with SHA1 contains the certificate's SHA-1 fingerprint.
 1. Go to the [Google API Console](https://console.developers.google.com/flows/enableapi?apiid=fitness)
 2. Create a project or choose existing project
 3. Click Continue to enable the Fitness API.
-4. Click Go to credentials.
+4. Click Go to [credentials](https://console.cloud.google.com/apis/credentials)
 5. Now add credential to your project.
    Note that If this is the first time you configure the project you should "Configure the OAuth consent screen" first
    Click New credentials, then select OAuth Client ID.
@@ -62,15 +62,18 @@ The line that begins with SHA1 contains the certificate's SHA-1 fingerprint.
 
 ### Set up in Android
 
-Register plugin inside your MainActivity.onCreate
+Register plugin inside your MainActivity
 
 ```
-import com.adscientiam.capacitor.googlefit.GoogleFit;
+import com.adscientiam.capacitor.googlefit.GoogleFitPlugin;
 
-this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-  add(GoogleFit.class);
-}});
+...
 
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    registerPlugin(GoogleFitPlugin.class);
+  }
 ```
 
 ### Import plugin
