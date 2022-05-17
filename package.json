@@ -15,10 +15,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/perfood/capacitor-healthkit.git"
+    "url": "git+https://github.com/perfood/capacitor-google-fit.git"
   },
   "bugs": {
-    "url": "https://github.com/perfood/capacitor-healthkit/issues"
+    "url": "https://github.com/perfood/capacitor-google-fit/issues"
   },
   "keywords": [
     "capacitor",
