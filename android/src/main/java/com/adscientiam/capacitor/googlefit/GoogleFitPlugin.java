@@ -208,6 +208,8 @@ public class GoogleFitPlugin extends Plugin {
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
+            .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
+            .aggregate(DataType.AGGREGATE_STEP_COUNT_DELTA)
             .aggregate(DataType.TYPE_DISTANCE_DELTA)
             .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
             .aggregate(DataType.TYPE_SPEED)
@@ -248,6 +250,9 @@ public class GoogleFitPlugin extends Plugin {
                                                 break;
                                             case "com.google.weight.summary":
                                                 summary.put("weight", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
+                                                break;
+                                            case "com.google.step_count.delta":
+                                                summary.put("steps", dataSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS));
                                                 break;
                                             default:
                                                 Log.i(TAG, "need to handle " + dataSet.getDataType().getName());

@@ -69,6 +69,7 @@ export interface HistoryActivityData {
   calories?: string;
   activity?: string;
   weight?: string;
+  steps?: string;
 }
 
 export interface AllowedResult {
