@@ -8,6 +8,7 @@ import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -33,8 +34,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@NativePlugin(requestCodes = { GoogleFit.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFit.RC_SIGN_IN })
-public class GoogleFit extends Plugin {
+@CapacitorPlugin(name = "GoogleFit")
+@NativePlugin(requestCodes = { GoogleFitPlugin.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFitPlugin.RC_SIGN_IN })
+public class GoogleFitPlugin extends Plugin {
 
     public static final String TAG = "HistoryApi";
     static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 19849;
@@ -68,7 +70,6 @@ public class GoogleFit extends Plugin {
 
     @PluginMethod
     public void connectToGoogleFit(PluginCall call) {
-        saveCall(call);
         GoogleSignInAccount account = getAccount();
         if (account == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -78,6 +79,7 @@ public class GoogleFit extends Plugin {
         } else {
             this.requestPermissions();
         }
+        call.resolve();
     }
 
     @PluginMethod
@@ -206,11 +208,14 @@ public class GoogleFit extends Plugin {
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
+            .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
+            .aggregate(DataType.AGGREGATE_STEP_COUNT_DELTA)
             .aggregate(DataType.TYPE_DISTANCE_DELTA)
             .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
             .aggregate(DataType.TYPE_SPEED)
             .aggregate(DataType.TYPE_CALORIES_EXPENDED)
             .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+            .aggregate(DataType.TYPE_WEIGHT)
             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
             .bucketByActivitySegment(1, TimeUnit.MINUTES)
             .enableServerQueries()
@@ -242,6 +247,12 @@ public class GoogleFit extends Plugin {
                                                 break;
                                             case "com.google.calories.expended":
                                                 summary.put("calories", dataSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES));
+                                                break;
+                                            case "com.google.weight.summary":
+                                                summary.put("weight", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
+                                                break;
+                                            case "com.google.step_count.delta":
+                                                summary.put("steps", dataSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS));
                                                 break;
                                             default:
                                                 Log.i(TAG, "need to handle " + dataSet.getDataType().getName());
