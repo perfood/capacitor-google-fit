@@ -275,7 +275,7 @@ public class GoogleFitPlugin extends Plugin {
     }
 
     private String timestampToDate(long timestamp) {
-        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(timestamp);
         return df.format(cal.getTime());
