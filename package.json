@@ -11,14 +11,14 @@
     "android/build.gradle",
     "dist/"
   ],
-  "author": "Ad Scientiam",
+  "author": "Perfood",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ad-Scientiam/capacitor-healthkit.git"
+    "url": "git+https://github.com/perfood/capacitor-healthkit.git"
   },
   "bugs": {
-    "url": "https://github.com/Ad-Scientiam/capacitor-healthkit/issues"
+    "url": "https://github.com/perfood/capacitor-healthkit/issues"
   },
   "keywords": [
     "capacitor",

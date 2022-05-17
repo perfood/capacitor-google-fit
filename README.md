@@ -5,7 +5,7 @@ Capacitor plugin to retrieve data from Google Fit
 ### Install
 
 ```
-npm i --save capacitor-google-fit
+npm i --save @perfood/capacitor-google-fit
 npx cap sync
 ```
 
