@@ -127,13 +127,16 @@ public class GoogleFitPlugin extends Plugin {
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
+            .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
+            .aggregate(DataType.AGGREGATE_STEP_COUNT_DELTA)
             .aggregate(DataType.TYPE_DISTANCE_DELTA)
             .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
             .aggregate(DataType.TYPE_SPEED)
             .aggregate(DataType.TYPE_CALORIES_EXPENDED)
             .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+            .aggregate(DataType.TYPE_WEIGHT)
             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .bucketByTime(1, TimeUnit.DAYS)
+            .bucketByTime(1, TimeUnit.HOURS)
             .enableServerQueries()
             .build();
 
@@ -145,7 +148,7 @@ public class GoogleFitPlugin extends Plugin {
                     @Override
                     public void onSuccess(DataReadResponse dataReadResponse) {
                         List<Bucket> buckets = dataReadResponse.getBuckets();
-                        JSONArray days = new JSONArray();
+                        JSONArray hours = new JSONArray();
                         for (Bucket bucket : buckets) {
                             JSONObject summary = new JSONObject();
                             try {
@@ -164,6 +167,12 @@ public class GoogleFitPlugin extends Plugin {
                                             case "com.google.calories.expended":
                                                 summary.put("calories", dataSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES));
                                                 break;
+                                            case "com.google.weight.summary":
+                                                summary.put("weight", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
+                                                break;
+                                            case "com.google.step_count.delta":
+                                                summary.put("steps", dataSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS));
+                                                break;
                                             default:
                                                 Log.i(TAG, "need to handle " + dataSet.getDataType().getName());
                                         }
@@ -173,10 +182,10 @@ public class GoogleFitPlugin extends Plugin {
                                 call.reject(e.getMessage());
                                 return;
                             }
-                            days.put(summary);
+                            hours.put(summary);
                         }
                         JSObject result = new JSObject();
-                        result.put("days", days);
+                        result.put("hours", hours);
                         call.resolve(result);
                     }
                 }

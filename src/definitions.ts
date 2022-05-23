@@ -18,7 +18,7 @@ export interface GoogleFitPlugin {
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistory(call: QueryInput): Promise<DayContainer>;
+  getHistory(call: QueryInput): Promise<HourContainer>;
 
   /**
    * Get history activity
@@ -41,8 +41,8 @@ export interface ActivityContainer {
   activities: HistoryActivityData[];
 }
 
-export interface DayContainer {
-  days: HistoryData[];
+export interface HourContainer {
+  hours: HistoryActivityData[];
 }
 
 export interface HistoryData {
