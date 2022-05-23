@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "declaration": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "inlineSources": true,
     "lib": ["dom", "es2017"],
