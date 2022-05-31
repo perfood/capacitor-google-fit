@@ -18,7 +18,7 @@ export interface GoogleFitPlugin {
    * @returns {Promise}
    * @resolve AccountData
    */
-  getHistory(call: QueryInput): Promise<DayContainer>;
+  getSteps(call: StepQueryInput): Promise<StepContainer>;
 
   /**
    * Get history activity
@@ -37,12 +37,26 @@ export interface QueryInput {
   endTime: Date;
 }
 
+export interface StepQueryInput extends QueryInput {
+  bucketSize: number;
+  timeUnit: TimeUnit;
+}
+
 export interface ActivityContainer {
   activities: HistoryActivityData[];
 }
 
 export interface DayContainer {
   days: HistoryData[];
+}
+
+export interface StepContainer {
+  steps: StepData[];
+}
+export interface StepData {
+  start: number;
+  end: number;
+  value: number;
 }
 
 export interface HistoryData {
@@ -74,4 +88,15 @@ export interface HistoryActivityData {
 
 export interface AllowedResult {
   allowed: boolean;
+}
+
+
+export enum TimeUnit {
+  NANOSECONDS = "NANOSECONDS",
+  MICROSECONDS = "MICROSECONDS",
+  MILLISECONDS = "MILLISECONDS",
+  SECONDS = "SECONDS",
+  MINUTES = "MINUTES",
+  HOURS = "HOURS",
+  DAYS = "DAYS",
 }
