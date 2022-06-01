@@ -2,7 +2,8 @@
 
 v2 is going to be a nearly complete rewrite of the plugin and still under heavy development. Things might not work just yet, but we are on it!
 
-TODO List:
+**TODO list:**
+
 - [x] Import Steps
 - [ ] Import Weight
 - [ ] Import Activities
@@ -65,7 +66,7 @@ The line that begins with SHA1 contains the certificate's SHA-1 fingerprint.
 
 8. Click Create. Your new Android OAuth 2.0 Client ID and secret appear in the list of IDs for your project.
    An OAuth 2.0 Client ID is a string of characters, something like this:
-   `780816631155-gbvyo1o7r2pn95qc4ei9d61io4uh48hl.apps.googleusercontent.com`
+   `780816531155-gbvyo1o7r2pn95tc4ei9d61io4uh48hl.apps.googleusercontent.com`
 
 ### Set up in Android
 
@@ -90,29 +91,25 @@ import { Plugins } from '@capacitor/core';
 const { GoogleFit } = Plugins;
 ```
 
-
 ## Usage
-
 
 ### First time Usage
 
 Before you can query for Data you have to connect to Google Fit you first have to import the GoogleFit Plugin and connect the User to Google Fit. An Example Service could look like this:
 
-
 #### **`example.service.ts`**
-``` ts
+
+```ts
 import { GoogleFit } from '@perfood/capacitor-google-fit';
 
 export class ExampleService {
+  constructor() {}
 
-  constructor(){}
-
-  public async connect(): Promise<void>{
+  public async connect(): Promise<void> {
     await GoogleFit.connectToGoogleFit();
   }
 }
 ```
-
 
 ### Query for Steps
 
@@ -127,19 +124,22 @@ timeUnit: TimeUnit; //p.e. "DAYS","HOURS","MINUTES",...
 
 The bucketSize and timeUnit will define in what chunks Google fit will deliver your data.
 an Example function to get Step Data in chunks of hours, looks like this:
+
 #### **`example.service.ts`**
-``` ts
+
+```ts
 
 import { GoogleFit, StepData } from '@perfood/capacitor-google-fit';
 
 export class ExampleService {
-
-  constructor(){}
+  constructor() {}
 
   public async getSteps(): Promise<StepData[]> {
     const today = new Date();
-    const lastWeek = new Date()
+    const lastWeek = new Date();
+
     lastWeek.setDate(today.getDate() - 7)today.getFullYear(), today.getMonth(), today.getDate() - 7);
+
     const result = await GoogleFit.getSteps({
       startTime: lastWeek,
       endTime: today,
