@@ -1,4 +1,4 @@
-package com.adscientiam.capacitor.googlefit;
+package de.perfood.capacitorgooglefit;
 
 import android.content.Intent;
 import android.util.Log;
