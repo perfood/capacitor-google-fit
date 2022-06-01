@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.Bucket;
+import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
@@ -111,88 +112,7 @@ public class GoogleFitPlugin extends Plugin {
     }
 
     @PluginMethod
-    public Task<DataReadResponse> getHistory(final PluginCall call) throws ParseException {
-        GoogleSignInAccount account = getAccount();
-
-        if (account == null) {
-            call.reject("No access");
-            return null;
-        }
-
-        long startTime = dateToTimestamp(call.getString("startTime"));
-        long endTime = dateToTimestamp(call.getString("endTime"));
-        if (startTime == -1 || endTime == -1) {
-            call.reject("Must provide a start time and end time");
-            return null;
-        }
-
-        DataReadRequest readRequest = new DataReadRequest.Builder()
-            .aggregate(DataType.TYPE_DISTANCE_DELTA)
-            .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
-            .aggregate(DataType.TYPE_SPEED)
-            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
-            .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .bucketByTime(1, TimeUnit.DAYS)
-            .enableServerQueries()
-            .build();
-
-        return Fitness
-            .getHistoryClient(getActivity(), account)
-            .readData(readRequest)
-            .addOnSuccessListener(
-                new OnSuccessListener<DataReadResponse>() {
-                    @Override
-                    public void onSuccess(DataReadResponse dataReadResponse) {
-                        List<Bucket> buckets = dataReadResponse.getBuckets();
-                        JSONArray days = new JSONArray();
-                        for (Bucket bucket : buckets) {
-                            JSONObject summary = new JSONObject();
-                            try {
-                                summary.put("start", timestampToDate(bucket.getStartTime(TimeUnit.MILLISECONDS)));
-                                summary.put("end", timestampToDate(bucket.getEndTime(TimeUnit.MILLISECONDS)));
-                                List<DataSet> dataSets = bucket.getDataSets();
-                                for (DataSet dataSet : dataSets) {
-                                    if (dataSet.getDataPoints().size() > 0) {
-                                        switch (dataSet.getDataType().getName()) {
-                                            case "com.google.distance.delta":
-                                                summary.put("distance", dataSet.getDataPoints().get(0).getValue(Field.FIELD_DISTANCE));
-                                                break;
-                                            case "com.google.speed.summary":
-                                                summary.put("speed", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
-                                                break;
-                                            case "com.google.calories.expended":
-                                                summary.put("calories", dataSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES));
-                                                break;
-                                            default:
-                                                Log.i(TAG, "need to handle " + dataSet.getDataType().getName());
-                                        }
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                call.reject(e.getMessage());
-                                return;
-                            }
-                            days.put(summary);
-                        }
-                        JSObject result = new JSObject();
-                        result.put("days", days);
-                        call.resolve(result);
-                    }
-                }
-            )
-            .addOnFailureListener(
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        call.reject(e.getMessage());
-                    }
-                }
-            );
-    }
-
-    @PluginMethod
-    public Task<DataReadResponse> getHistoryActivity(final PluginCall call) throws ParseException {
+    public Task<DataReadResponse> getSteps(final PluginCall call) throws ParseException {
         final GoogleSignInAccount account = getAccount();
 
         if (account == null) {
@@ -202,22 +122,46 @@ public class GoogleFitPlugin extends Plugin {
 
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
-        if (startTime == -1 || endTime == -1) {
+
+        TimeUnit timeUnit = TimeUnit.HOURS;
+        String timeUnitInput = call.getString("timeUnit", "HOURS");
+
+        int bucketSize = call.getInt("bucketSize", 1);
+
+        switch (timeUnitInput) {
+            case "NANOSECONDS":
+                timeUnit = TimeUnit.NANOSECONDS;
+                break;
+            case "MICROSECONDS":
+                timeUnit = TimeUnit.MICROSECONDS;
+                break;
+            case "MILLISECONDS":
+                timeUnit = TimeUnit.MILLISECONDS;
+                break;
+            case "SECONDS":
+                timeUnit = TimeUnit.SECONDS;
+                break;
+            case "MINUTES":
+                timeUnit = TimeUnit.MINUTES;
+                break;
+            case "HOURS":
+                timeUnit = TimeUnit.HOURS;
+                break;
+            case "DAYS":
+                timeUnit = TimeUnit.DAYS;
+                break;
+        }
+
+        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
             call.reject("Must provide a start time and end time");
+
             return null;
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
             .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
-            .aggregate(DataType.AGGREGATE_STEP_COUNT_DELTA)
-            .aggregate(DataType.TYPE_DISTANCE_DELTA)
-            .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
-            .aggregate(DataType.TYPE_SPEED)
-            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
-            .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
-            .aggregate(DataType.TYPE_WEIGHT)
             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .bucketByActivitySegment(1, TimeUnit.MINUTES)
+            .bucketByTime(bucketSize, timeUnit)
             .enableServerQueries()
             .build();
 
@@ -229,49 +173,47 @@ public class GoogleFitPlugin extends Plugin {
                     @Override
                     public void onSuccess(DataReadResponse dataReadResponse) {
                         List<Bucket> buckets = dataReadResponse.getBuckets();
-                        JSONArray activities = new JSONArray();
+
+                        JSONObject steps = new JSONObject();
+
                         for (Bucket bucket : buckets) {
-                            JSONObject summary = new JSONObject();
-                            try {
-                                summary.put("start", timestampToDate(bucket.getStartTime(TimeUnit.MILLISECONDS)));
-                                summary.put("end", timestampToDate(bucket.getEndTime(TimeUnit.MILLISECONDS)));
-                                List<DataSet> dataSets = bucket.getDataSets();
-                                for (DataSet dataSet : dataSets) {
-                                    if (dataSet.getDataPoints().size() > 0) {
-                                        switch (dataSet.getDataType().getName()) {
-                                            case "com.google.distance.delta":
-                                                summary.put("distance", dataSet.getDataPoints().get(0).getValue(Field.FIELD_DISTANCE));
-                                                break;
-                                            case "com.google.speed.summary":
-                                                summary.put("speed", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
-                                                break;
-                                            case "com.google.calories.expended":
-                                                summary.put("calories", dataSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES));
-                                                break;
-                                            case "com.google.weight.summary":
-                                                summary.put("weight", dataSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE));
-                                                break;
-                                            case "com.google.step_count.delta":
-                                                summary.put("steps", dataSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS));
-                                                break;
-                                            default:
-                                                Log.i(TAG, "need to handle " + dataSet.getDataType().getName());
+                            for (DataSet dataSet : bucket.getDataSets()) {
+                                for (DataPoint dp : dataSet.getDataPoints()) {
+                                    for (Field field : dp.getDataType().getFields()) {
+                                        try {
+                                            steps.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                            steps.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                            steps.put("value", dp.getValue(field).toString());
+                                        } catch (JSONException e) {
+                                            call.reject(e.getMessage());
+                                            return;
                                         }
                                     }
                                 }
-                                summary.put("activity", bucket.getActivity());
-                            } catch (JSONException e) {
-                                call.reject(e.getMessage());
-                                return;
                             }
-                            activities.put(summary);
                         }
+
                         JSObject result = new JSObject();
-                        result.put("activities", activities);
+
+                        result.put("steps", steps);
+
                         call.resolve(result);
                     }
                 }
             );
+    }
+
+    private void dumpDataSet(DataSet dataSet) {
+        Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
+        for (DataPoint dp : dataSet.getDataPoints()) {
+            Log.i(TAG, "Data point:");
+            Log.i(TAG, "\tType: " + dp.getDataType().getName());
+            Log.i(TAG, "\tStart: " + dp.getStartTime(TimeUnit.MILLISECONDS));
+            Log.i(TAG, "\tEnd: " + dp.getEndTime(TimeUnit.MILLISECONDS));
+            for (Field field : dp.getDataType().getFields()) {
+                Log.i(TAG, "\tField: " + field.getName() + "   Value: " + dp.getValue(field).toString());
+            }
+        }
     }
 
     private String timestampToDate(long timestamp) {
