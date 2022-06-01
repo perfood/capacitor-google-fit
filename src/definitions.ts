@@ -14,11 +14,18 @@ export interface GoogleFitPlugin {
   isAllowed(): Promise<AllowedResult>;
 
   /**
-   * Get history
+   * Get stesp history
    * @returns {Promise}
    * @resolve AccountData
    */
   getSteps(call: StepQueryInput): Promise<StepQueryResult>;
+
+  /**
+   * Get weight history
+   * @returns {Promise}
+   * @resolve StepQueryResult
+   */
+  getWeight(call: QueryInput): Promise<any>;
 
   /**
    * Get history activity

@@ -203,6 +203,76 @@ public class GoogleFitPlugin extends Plugin {
             );
     }
 
+    @PluginMethod
+    public Task<DataReadResponse> getWeight(final PluginCall call) throws ParseException {
+        final GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
+
+        long startTime = dateToTimestamp(call.getString("startTime"));
+        long endTime = dateToTimestamp(call.getString("endTime"));
+
+        TimeUnit timeUnit = TimeUnit.HOURS;
+        String timeUnitInput = call.getString("timeUnit", "HOURS");
+
+        int bucketSize = call.getInt("bucketSize", 1);
+
+        switch (timeUnitInput) {
+            case "NANOSECONDS":
+                timeUnit = TimeUnit.NANOSECONDS;
+                break;
+            case "MICROSECONDS":
+                timeUnit = TimeUnit.MICROSECONDS;
+                break;
+            case "MILLISECONDS":
+                timeUnit = TimeUnit.MILLISECONDS;
+                break;
+            case "SECONDS":
+                timeUnit = TimeUnit.SECONDS;
+                break;
+            case "MINUTES":
+                timeUnit = TimeUnit.MINUTES;
+                break;
+            case "HOURS":
+                timeUnit = TimeUnit.HOURS;
+                break;
+            case "DAYS":
+                timeUnit = TimeUnit.DAYS;
+                break;
+        }
+
+        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
+            call.reject("Must provide a start time and end time");
+
+            return null;
+        }
+
+        DataReadRequest readRequest = new DataReadRequest.Builder()
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .enableServerQueries()
+            .read(DataType.TYPE_WEIGHT);
+
+        return Fitness
+            .getHistoryClient(getActivity(), account)
+            .readData(readRequest)
+            .addOnSuccessListener(
+                new OnSuccessListener<DataReadResponse>() {
+                    @Override
+                    public void onSuccess(DataReadResponse dataReadResponse) {
+                        Log.i(TAG, "dataReadResponse:");
+                        Log.i(TAG, "\tType: " + dataReadResponse.toString());
+
+                        JSObject result = new JSObject();
+
+                        call.resolve(result);
+                    }
+                }
+            );
+    }
+
     private void dumpDataSet(DataSet dataSet) {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
         for (DataPoint dp : dataSet.getDataPoints()) {
