@@ -1,6 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { AllowedResult, GoogleFitPlugin } from './definitions';
+import type {
+  AllowedResult,
+  GoogleFitPlugin,
+  StepQueryResult,
+} from './definitions';
 
 export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
   constructor() {
@@ -13,12 +17,15 @@ export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
   async connectToGoogleFit(): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
   async isAllowed(): Promise<AllowedResult> {
     throw new Error('Method not implemented.');
   }
-  async getSteps(): Promise<any> {
+
+  async getSteps(): Promise<StepQueryResult> {
     throw new Error('Method not implemented.');
   }
+
   async getHistoryActivity(): Promise<any> {
     throw new Error('Method not implemented.');
   }

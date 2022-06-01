@@ -18,7 +18,7 @@ export interface GoogleFitPlugin {
    * @returns {Promise}
    * @resolve AccountData
    */
-  getSteps(call: StepQueryInput): Promise<StepContainer>;
+  getSteps(call: StepQueryInput): Promise<StepQueryResult>;
 
   /**
    * Get history activity
@@ -50,7 +50,7 @@ export interface DayContainer {
   days: HistoryData[];
 }
 
-export interface StepContainer {
+export interface StepQueryResult {
   steps: StepData[];
 }
 export interface StepData {
