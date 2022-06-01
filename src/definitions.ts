@@ -54,8 +54,8 @@ export interface StepContainer {
   steps: StepData[];
 }
 export interface StepData {
-  start: number;
-  end: number;
+  startTime: string;
+  endTime: string;
   value: number;
 }
 
@@ -90,13 +90,12 @@ export interface AllowedResult {
   allowed: boolean;
 }
 
-
 export enum TimeUnit {
-  NANOSECONDS = "NANOSECONDS",
-  MICROSECONDS = "MICROSECONDS",
-  MILLISECONDS = "MILLISECONDS",
-  SECONDS = "SECONDS",
-  MINUTES = "MINUTES",
-  HOURS = "HOURS",
-  DAYS = "DAYS",
+  NANOSECONDS = 'NANOSECONDS',
+  MICROSECONDS = 'MICROSECONDS',
+  MILLISECONDS = 'MILLISECONDS',
+  SECONDS = 'SECONDS',
+  MINUTES = 'MINUTES',
+  HOURS = 'HOURS',
+  DAYS = 'DAYS',
 }
