@@ -14,11 +14,11 @@ export interface GoogleFitPlugin {
   isAllowed(): Promise<AllowedResult>;
 
   /**
-   * Get step history
+   * Get step history @param bucketSize and @param timeUnit you can define the buckets in which the data is returned
    * @returns {Promise}
    * @resolve StepQueryResult
    */
-  getSteps(call: StepQueryInput): Promise<StepQueryResult>;
+  getSteps(call: ExtendedQueryInput): Promise<StepQueryResult>;
 
   /**
    * Get weight history
@@ -28,18 +28,11 @@ export interface GoogleFitPlugin {
   getWeight(call: QueryInput): Promise<WeightQueryResult>;
 
   /**
-   * Get Activites
+   * Get Activites, with @param bucketSize and @param timeUnit you can define the minimum length of an activity
    * @returns {Promise}
-   * @resolve StepQueryResult
+   * @resolve ActivityQueryResult
    */
-  getActivities(call: QueryInput): Promise<ActivityQueryResult>;
-
-  /**
-   * Get history activity
-   * @returns {Promise}
-   * @resolve AccountData
-   */
-  getHistoryActivity(call: QueryInput): Promise<ActivityContainer>;
+  getActivities(call: ExtendedQueryInput): Promise<ActivityQueryResult>;
 }
 
 export interface PermissionData {
@@ -51,17 +44,9 @@ export interface QueryInput {
   endTime: Date;
 }
 
-export interface StepQueryInput extends QueryInput {
+export interface ExtendedQueryInput extends QueryInput {
   bucketSize: number;
   timeUnit: TimeUnit;
-}
-
-export interface ActivityContainer {
-  activities: HistoryActivityData[];
-}
-
-export interface DayContainer {
-  days: HistoryData[];
 }
 
 /**
@@ -69,7 +54,7 @@ export interface DayContainer {
  * The @param value inside of SimpleData has the values representing the Google Fit Constants as the name of the activity
  */
 export interface ActivityQueryResult {
-  activities: SimpleData[];
+  activities: ActivityData[];
 }
 
 /**
@@ -93,31 +78,11 @@ export interface SimpleData {
   value: number;
 }
 
-export interface HistoryData {
-  start: string;
-  end: string;
-  /**
-  Distance travelled in meters.
-  Valid range: 0—100 meters per second
-   */
-  distance: string;
-  /**meters per second */
-  speed: string;
-  /*
-  This data type captures the total calories (in kilocalories) burned by the user, including calories burned at rest (BMR or Basalrate)!
-  */
-  calories: string;
-}
-
-export interface HistoryActivityData {
-  start: string;
-  end: string;
+export interface ActivityData extends SimpleData {
   distance?: string;
   speed?: string;
-  calories?: string;
-  activity?: string;
-  weight?: string;
-  steps?: string;
+  calories: string;
+  name: string;
 }
 
 export interface AllowedResult {
