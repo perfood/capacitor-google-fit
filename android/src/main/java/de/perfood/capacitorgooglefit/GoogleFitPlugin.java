@@ -1,14 +1,19 @@
 package de.perfood.capacitorgooglefit;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -35,9 +40,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@CapacitorPlugin(name = "GoogleFit")
+@CapacitorPlugin(
+    name = "GoogleFit",
+    permissions = { @Permission(strings = { Manifest.permission.ACTIVITY_RECOGNITION }, alias = GoogleFitPlugin.ACTIVITY) }
+)
 @NativePlugin(requestCodes = { GoogleFitPlugin.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFitPlugin.RC_SIGN_IN })
 public class GoogleFitPlugin extends Plugin {
+
+    public static final String ACTIVITY = "activity";
 
     public static final String TAG = "HistoryApi";
     static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 19849;
@@ -58,6 +68,7 @@ public class GoogleFitPlugin extends Plugin {
             .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
             .build();
     }
 
@@ -259,6 +270,78 @@ public class GoogleFitPlugin extends Plugin {
             );
     }
 
+    @PluginMethod
+    @SuppressWarnings("MissingPermission")
+    public Task<DataReadResponse> getActivities(final PluginCall call) throws ParseException {
+        if (
+            ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED
+        ) {
+            String[] permissions = { Manifest.permission.ACTIVITY_RECOGNITION };
+            ActivityCompat.requestPermissions(getActivity(), permissions, RC_SIGN_IN);
+        }
+
+        final GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
+
+        long startTime = dateToTimestamp(call.getString("startTime"));
+        long endTime = dateToTimestamp(call.getString("endTime"));
+
+        if (startTime == -1 || endTime == -1) {
+            call.reject("Must provide a start time and end time");
+
+            return null;
+        }
+        DataReadRequest readRequest = new DataReadRequest.Builder()
+            .read(DataType.TYPE_ACTIVITY_SEGMENT)
+            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
+            .enableServerQueries()
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .build();
+
+        return Fitness
+            .getHistoryClient(getActivity(), account)
+            .readData(readRequest)
+            .addOnSuccessListener(
+                new OnSuccessListener<DataReadResponse>() {
+                    @Override
+                    public void onSuccess(DataReadResponse dataReadResponse) {
+                        DataSet activityDataSet = dataReadResponse.getDataSet(DataType.TYPE_ACTIVITY_SEGMENT);
+                        dumpDataSet(activityDataSet);
+                        JSONArray activities = new JSONArray();
+                        for (DataPoint dp : activityDataSet.getDataPoints()) {
+                            for (Field field : dp.getDataType().getFields()) {
+                                JSONObject weightEntry = new JSONObject();
+                                try {
+                                    weightEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("value", dp.getValue(field).toString());
+                                    weights.put(weightEntry);
+                                } catch (JSONException e) {
+                                    call.reject(e.getMessage());
+                                    return;
+                                }
+                            }
+                        }
+                        JSObject result = new JSObject();
+                        /*result.put("weights", weights);*/
+                        call.resolve(result);
+                    }
+                }
+            )
+            .addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "ERROR READING HISTORY: " + e.getMessage());
+                    }
+                }
+            );
+    }
+
     private void dumpDataSet(DataSet dataSet) {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
         for (DataPoint dp : dataSet.getDataPoints()) {
@@ -267,7 +350,7 @@ public class GoogleFitPlugin extends Plugin {
             Log.i(TAG, "\tStart: " + dp.getStartTime(TimeUnit.MILLISECONDS));
             Log.i(TAG, "\tEnd: " + dp.getEndTime(TimeUnit.MILLISECONDS));
             for (Field field : dp.getDataType().getFields()) {
-                Log.i(TAG, "\tField: " + field.getName() + "   Value: " + dp.getValue(field).toString());
+                Log.i(TAG, "\tField: " + field.getName() + "   Value: " + dp.getValue(field).asActivity());
             }
         }
     }

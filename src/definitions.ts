@@ -16,16 +16,23 @@ export interface GoogleFitPlugin {
   /**
    * Get step history
    * @returns {Promise}
-   * @resolve AccountData
+   * @resolve StepQueryResult
    */
   getSteps(call: StepQueryInput): Promise<StepQueryResult>;
 
   /**
    * Get weight history
    * @returns {Promise}
-   * @resolve StepQueryResult
+   * @resolve WeightQueryResult
    */
   getWeight(call: QueryInput): Promise<WeightQueryResult>;
+
+  /**
+   * Get Activites
+   * @returns {Promise}
+   * @resolve StepQueryResult
+   */
+  getActivities(call: QueryInput): Promise<any>;
 
   /**
    * Get history activity
