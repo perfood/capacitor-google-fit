@@ -75,7 +75,7 @@ export interface StepQueryResult {
 export interface SimpleData {
   startTime: string;
   endTime: string;
-  value: number;
+  value: string;
 }
 
 export interface ActivityData extends SimpleData {
