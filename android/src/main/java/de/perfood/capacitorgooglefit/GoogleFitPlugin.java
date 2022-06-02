@@ -244,6 +244,7 @@ public class GoogleFitPlugin extends Plugin {
                                     weightEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
                                     weightEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
                                     weightEntry.put("value", dp.getValue(field).toString());
+                                    weights.put(weightEntry);
                                 } catch (JSONException e) {
                                     call.reject(e.getMessage());
                                     return;
