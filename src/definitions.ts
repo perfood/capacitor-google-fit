@@ -32,7 +32,7 @@ export interface GoogleFitPlugin {
    * @returns {Promise}
    * @resolve StepQueryResult
    */
-  getActivities(call: QueryInput): Promise<any>;
+  getActivities(call: QueryInput): Promise<ActivityQueryResult>;
 
   /**
    * Get history activity
@@ -62,6 +62,14 @@ export interface ActivityContainer {
 
 export interface DayContainer {
   days: HistoryData[];
+}
+
+/**
+ * The results of a ActivityQuery.
+ * The @param value inside of SimpleData has the values representing the Google Fit Constants as the name of the activity
+ */
+export interface ActivityQueryResult {
+  activities: SimpleData[];
 }
 
 /**

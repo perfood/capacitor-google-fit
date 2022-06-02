@@ -276,6 +276,7 @@ public class GoogleFitPlugin extends Plugin {
         if (
             ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED
         ) {
+            //Access to Activites has not been granted
             String[] permissions = { Manifest.permission.ACTIVITY_RECOGNITION };
             ActivityCompat.requestPermissions(getActivity(), permissions, RC_SIGN_IN);
         }
@@ -297,7 +298,6 @@ public class GoogleFitPlugin extends Plugin {
         }
         DataReadRequest readRequest = new DataReadRequest.Builder()
             .read(DataType.TYPE_ACTIVITY_SEGMENT)
-            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
             .enableServerQueries()
             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
             .build();
@@ -314,12 +314,12 @@ public class GoogleFitPlugin extends Plugin {
                         JSONArray activities = new JSONArray();
                         for (DataPoint dp : activityDataSet.getDataPoints()) {
                             for (Field field : dp.getDataType().getFields()) {
-                                JSONObject weightEntry = new JSONObject();
+                                JSONObject activity = new JSONObject();
                                 try {
-                                    weightEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                                    weightEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                    weightEntry.put("value", dp.getValue(field).toString());
-                                    weights.put(weightEntry);
+                                    activity.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                    activity.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                    activity.put("value", dp.getValue(field).asActivity());
+                                    activities.put(activity);
                                 } catch (JSONException e) {
                                     call.reject(e.getMessage());
                                     return;
@@ -327,7 +327,7 @@ public class GoogleFitPlugin extends Plugin {
                             }
                         }
                         JSObject result = new JSObject();
-                        /*result.put("weights", weights);*/
+                        result.put("activities", activities);
                         call.resolve(result);
                     }
                 }
@@ -337,6 +337,7 @@ public class GoogleFitPlugin extends Plugin {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "ERROR READING HISTORY: " + e.getMessage());
+                        call.reject("No access");
                     }
                 }
             );
