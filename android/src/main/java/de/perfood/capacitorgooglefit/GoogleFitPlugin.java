@@ -177,7 +177,6 @@ public class GoogleFitPlugin extends Plugin {
                         JSONArray steps = new JSONArray();
 
                         for (Bucket bucket : buckets) {
-
                             for (DataSet dataSet : bucket.getDataSets()) {
                                 for (DataPoint dp : dataSet.getDataPoints()) {
                                     for (Field field : dp.getDataType().getFields()) {
