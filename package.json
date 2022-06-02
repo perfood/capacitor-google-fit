@@ -38,7 +38,8 @@
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
-    "prettier": "prettier . --check"
+    "prettier": "prettier . --check",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@capacitor/android": "^3.0.0",
@@ -48,6 +49,8 @@
     "@ionic/prettier-config": "^1.0.1",
     "@ionic/swiftlint-config": "^1.1.2",
     "eslint": "^7.11.0",
+    "husky": "8.0.1",
+    "lint-staged": "12.5.0",
     "prettier": "~2.2.0",
     "prettier-plugin-java": "~1.0.0",
     "rimraf": "^3.0.2",
@@ -67,5 +70,9 @@
     "android": {
       "src": "android"
     }
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,ts,css,md,java}": "prettier --write"
   }
 }

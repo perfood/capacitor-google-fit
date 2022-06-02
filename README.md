@@ -30,7 +30,7 @@ To do this:
    - macOS : ~/.android
    - Windows : C:\Users\your-user-name\.android\
 
-2. List the SHA-1 fingerprint:
+2. List the SHA-1 fingerprint:!
 
    - macOS
 
