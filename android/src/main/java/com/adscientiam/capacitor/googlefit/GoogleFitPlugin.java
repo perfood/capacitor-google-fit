@@ -174,16 +174,19 @@ public class GoogleFitPlugin extends Plugin {
                     public void onSuccess(DataReadResponse dataReadResponse) {
                         List<Bucket> buckets = dataReadResponse.getBuckets();
 
-                        JSONObject steps = new JSONObject();
+                        JSONArray steps = new JSONArray();
 
                         for (Bucket bucket : buckets) {
+
                             for (DataSet dataSet : bucket.getDataSets()) {
                                 for (DataPoint dp : dataSet.getDataPoints()) {
                                     for (Field field : dp.getDataType().getFields()) {
+                                        JSONObject stepEntry = new JSONObject();
                                         try {
-                                            steps.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                                            steps.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                            steps.put("value", dp.getValue(field).toString());
+                                            stepEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                            stepEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                            stepEntry.put("value", dp.getValue(field).toString());
+                                            steps.put(stepEntry);
                                         } catch (JSONException e) {
                                             call.reject(e.getMessage());
                                             return;
@@ -194,7 +197,6 @@ public class GoogleFitPlugin extends Plugin {
                         }
 
                         JSObject result = new JSObject();
-
                         result.put("steps", steps);
 
                         call.resolve(result);
