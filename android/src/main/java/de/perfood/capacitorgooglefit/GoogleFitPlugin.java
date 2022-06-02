@@ -113,17 +113,21 @@ public class GoogleFitPlugin extends Plugin {
 
     @PluginMethod
     public Task<DataReadResponse> getSteps(final PluginCall call) throws ParseException {
-        final GoogleSignInAccount account = getAccount();
+        Log.i(TAG, "[XXXXXXXX] OKAY I AM STARTED");
+        try {
+            final GoogleSignInAccount account = getAccount();
+            Log.i(TAG, "[XXXXXXXX] ACCOUNT" + account.toString());
 
-        if (account == null) {
-            call.reject("No access");
-            return null;
-        }
+            if (account == null) {
+                call.reject("No access");
+                return null;
+            }
 
-        long startTime = dateToTimestamp(call.getString("startTime"));
-        long endTime = dateToTimestamp(call.getString("endTime"));
+            long startTime = dateToTimestamp(call.getString("startTime"));
+            long endTime = dateToTimestamp(call.getString("endTime"));
+            Log.i(TAG, "[XXXXXXXX] startTime" + startTime);
 
-        TimeUnit timeUnit = TimeUnit.HOURS;
+            /*TimeUnit timeUnit = TimeUnit.HOURS;
         String timeUnitInput = call.getString("timeUnit", "HOURS");
 
         int bucketSize = call.getInt("bucketSize", 1);
@@ -150,57 +154,88 @@ public class GoogleFitPlugin extends Plugin {
             case "DAYS":
                 timeUnit = TimeUnit.DAYS;
                 break;
-        }
+        }*/
 
-        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
-            call.reject("Must provide a start time and end time");
+            if (startTime == -1 || endTime == -1) {
+                call.reject("Must provide a start time and end time");
 
-            return null;
-        }
+                return null;
+            }
+            Log.i(TAG, "[XXXXXXXX] startTime and endTime VALID");
 
-        DataReadRequest readRequest = new DataReadRequest.Builder()
-            .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .bucketByTime(bucketSize, timeUnit)
-            .enableServerQueries()
-            .build();
+            DataReadRequest readRequest = new DataReadRequest.Builder()
+                .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
+                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                .bucketByTime(1, TimeUnit.MINUTES)
+                .enableServerQueries()
+                .build();
 
-        return Fitness
-            .getHistoryClient(getActivity(), account)
-            .readData(readRequest)
-            .addOnSuccessListener(
-                new OnSuccessListener<DataReadResponse>() {
-                    @Override
-                    public void onSuccess(DataReadResponse dataReadResponse) {
-                        List<Bucket> buckets = dataReadResponse.getBuckets();
+            Log.i(TAG, "[XXXXXXXX] DataReadRequest" + readRequest.toString());
 
-                        JSONObject steps = new JSONObject();
+            return Fitness
+                .getHistoryClient(getActivity(), account)
+                .readData(readRequest)
+                .addOnSuccessListener(
+                    new OnSuccessListener<DataReadResponse>() {
+                        @Override
+                        public void onSuccess(DataReadResponse dataReadResponse) {
+                            List<Bucket> buckets = dataReadResponse.getBuckets();
+                            Log.i(TAG, "[XXXXXXXX] buckets" + buckets.toString());
 
-                        for (Bucket bucket : buckets) {
-                            for (DataSet dataSet : bucket.getDataSets()) {
-                                for (DataPoint dp : dataSet.getDataPoints()) {
-                                    for (Field field : dp.getDataType().getFields()) {
-                                        try {
-                                            steps.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                                            steps.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                            steps.put("value", dp.getValue(field).toString());
-                                        } catch (JSONException e) {
-                                            call.reject(e.getMessage());
-                                            return;
+                            JSONObject steps = new JSONObject();
+                            Log.i(TAG, "[XXXXXXXX] steps" + steps.toString());
+
+                            for (Bucket bucket : buckets) {
+                                Log.i(TAG, "[XXXXXXXX] BUCKETS IT" + bucket.toString());
+
+                                for (DataSet dataSet : bucket.getDataSets()) {
+                                    Log.i(TAG, "[XXXXXXXX] dataSet IT" + dataSet.toString());
+
+                                    for (DataPoint dp : dataSet.getDataPoints()) {
+                                        Log.i(TAG, "[XXXXXXXX] dp IT" + dp.toString());
+
+                                        for (Field field : dp.getDataType().getFields()) {
+                                            Log.i(TAG, "[XXXXXXXX] field IT" + field.toString());
+                                            Log.i(TAG, "[XXXXXXXX] TIMESTART" + dp.getStartTime(TimeUnit.MILLISECONDS));
+                                            Log.i(TAG, "[XXXXXXXX] TIMEEND" + dp.getStartTime(TimeUnit.MILLISECONDS));
+                                            Log.i(TAG, "[XXXXXXXX] VALUE" + dp.getValue(field).toString());
+
+                                            try {
+                                                steps.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                                steps.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                                steps.put("value", dp.getValue(field).toString());
+                                            } catch (JSONException e) {
+                                                call.reject(e.getMessage());
+                                                return;
+                                            }
                                         }
                                     }
                                 }
                             }
+
+                            JSObject result = new JSObject();
+                            Log.i(TAG, "I HAVE SOMETHING :O " + steps.toString());
+                            result.put("steps", steps);
+
+                            call.resolve(result);
                         }
-
-                        JSObject result = new JSObject();
-
-                        result.put("steps", steps);
-
-                        call.resolve(result);
                     }
-                }
-            );
+                )
+                .addOnFailureListener(
+                    new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.i(TAG, "[XXXXXXXX] Failed To do my job " + e.toString());
+                            call.reject("Failed to read Data");
+                        }
+                    }
+                );
+        } catch (Exception exception) {
+            call.reject("No access");
+            Log.w(TAG, exception.toString());
+
+            return null;
+        }
     }
 
     private void dumpDataSet(DataSet dataSet) {

@@ -19,13 +19,6 @@ export interface GoogleFitPlugin {
    * @resolve AccountData
    */
   getSteps(call: StepQueryInput): Promise<StepQueryResult>;
-
-  /**
-   * Get history activity
-   * @returns {Promise}
-   * @resolve AccountData
-   */
-  getHistoryActivity(call: QueryInput): Promise<ActivityContainer>;
 }
 
 export interface PermissionData {
