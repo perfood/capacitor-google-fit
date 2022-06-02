@@ -215,45 +215,16 @@ public class GoogleFitPlugin extends Plugin {
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
 
-        TimeUnit timeUnit = TimeUnit.HOURS;
-        String timeUnitInput = call.getString("timeUnit", "HOURS");
-
-        int bucketSize = call.getInt("bucketSize", 1);
-
-        switch (timeUnitInput) {
-            case "NANOSECONDS":
-                timeUnit = TimeUnit.NANOSECONDS;
-                break;
-            case "MICROSECONDS":
-                timeUnit = TimeUnit.MICROSECONDS;
-                break;
-            case "MILLISECONDS":
-                timeUnit = TimeUnit.MILLISECONDS;
-                break;
-            case "SECONDS":
-                timeUnit = TimeUnit.SECONDS;
-                break;
-            case "MINUTES":
-                timeUnit = TimeUnit.MINUTES;
-                break;
-            case "HOURS":
-                timeUnit = TimeUnit.HOURS;
-                break;
-            case "DAYS":
-                timeUnit = TimeUnit.DAYS;
-                break;
-        }
-
-        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
+        if (startTime == -1 || endTime == -1) {
             call.reject("Must provide a start time and end time");
 
             return null;
         }
-
         DataReadRequest readRequest = new DataReadRequest.Builder()
+            .read(DataType.TYPE_WEIGHT)
             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
             .enableServerQueries()
-            .read(DataType.TYPE_WEIGHT);
+            .build();
 
         return Fitness
             .getHistoryClient(getActivity(), account)
@@ -262,11 +233,24 @@ public class GoogleFitPlugin extends Plugin {
                 new OnSuccessListener<DataReadResponse>() {
                     @Override
                     public void onSuccess(DataReadResponse dataReadResponse) {
-                        Log.i(TAG, "dataReadResponse:");
-                        Log.i(TAG, "\tType: " + dataReadResponse.toString());
+                        DataSet weightDataSet = dataReadResponse.getDataSet(DataType.TYPE_WEIGHT);
 
+                        JSONArray weights = new JSONArray();
+                        for (DataPoint dp : weightDataSet.getDataPoints()) {
+                            for (Field field : dp.getDataType().getFields()) {
+                                JSONObject weightEntry = new JSONObject();
+                                try {
+                                    weightEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("value", dp.getValue(field).toString());
+                                } catch (JSONException e) {
+                                    call.reject(e.getMessage());
+                                    return;
+                                }
+                            }
+                        }
                         JSObject result = new JSObject();
-
+                        result.put("weights", weights);
                         call.resolve(result);
                     }
                 }
