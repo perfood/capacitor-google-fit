@@ -128,7 +128,6 @@ an Example function to get Step Data in chunks of hours, looks like this:
 #### **`example.service.ts`**
 
 ```ts
-
 import { GoogleFit, SimpleData } from '@perfood/capacitor-google-fit';
 
 export class ExampleService {
@@ -138,7 +137,11 @@ export class ExampleService {
     const today = new Date();
     const lastWeek = new Date();
 
-    lastWeek.setDate(today.getDate() - 7)today.getFullYear(), today.getMonth(), today.getDate() - 7);
+    lastWeek.setDate(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 7,
+    );
 
     const result = await GoogleFit.getSteps({
       startTime: lastWeek,
@@ -154,20 +157,18 @@ export class ExampleService {
 
 ### Query for Weight
 
-To query for steps, you need to define the following Parameteres, also defined in QueryInput:
+To query for weight, you need to define the following Parameteres, also defined in QueryInput:
 
 ```
 startTime: Date;
 endTime: Date;
 ```
 
-The bucketSize and timeUnit will define in what chunks Google fit will deliver your data.
-an Example function to get Step Data in chunks of hours, looks like this:
+an example function to get Weight Data, looks like this:
 
 #### **`example.service.ts`**
 
 ```ts
-
 import { GoogleFit, SimpleData } from '@perfood/capacitor-google-fit';
 
 export class ExampleService {
@@ -177,7 +178,11 @@ export class ExampleService {
     const today = new Date();
     const lastWeek = new Date();
 
-    lastWeek.setDate(today.getDate() - 7)today.getFullYear(), today.getMonth(), today.getDate() - 7);
+    lastWeek.setDate(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 7,
+    );
 
     const result = await GoogleFit.getWeight({
       startTime: lastWeek,
