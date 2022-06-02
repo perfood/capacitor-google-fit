@@ -6,7 +6,7 @@ v2 is going to be a nearly complete rewrite of the plugin and still under heavy 
 
 - [x] Import Steps
 - [ ] Import Weight
-- [ ] Import Activities
+- [x] Import Activities
 - [ ] Import Sleep
 - [ ] Import Pulse?
 
