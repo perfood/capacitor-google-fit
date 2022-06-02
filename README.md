@@ -5,7 +5,7 @@ v2 is going to be a nearly complete rewrite of the plugin and still under heavy 
 **TODO list:**
 
 - [x] Import Steps
-- [ ] Import Weight
+- [x] Import Weight
 - [ ] Import Activities
 - [ ] Import Sleep
 - [ ] Import Pulse?
@@ -46,7 +46,7 @@ To do this:
 
 The line that begins with SHA1 contains the certificate's SHA-1 fingerprint.
 
-##### 2. Request an OAuth 2.0 client ID in the Google API Console :
+#### 2. Request an OAuth 2.0 client ID in the Google API Console :
 
 1. Go to the [Google API Console](https://console.developers.google.com/flows/enableapi?apiid=fitness)
 2. Create a project or choose existing project
@@ -129,12 +129,12 @@ an Example function to get Step Data in chunks of hours, looks like this:
 
 ```ts
 
-import { GoogleFit, StepData } from '@perfood/capacitor-google-fit';
+import { GoogleFit, SimpleData } from '@perfood/capacitor-google-fit';
 
 export class ExampleService {
   constructor() {}
 
-  public async getSteps(): Promise<StepData[]> {
+  public async getSteps(): Promise<SimpleData[]> {
     const today = new Date();
     const lastWeek = new Date();
 
@@ -148,6 +148,43 @@ export class ExampleService {
     });
 
     return result.steps;
+  }
+}
+```
+
+### Query for Weight
+
+To query for steps, you need to define the following Parameteres, also defined in QueryInput:
+
+```
+startTime: Date;
+endTime: Date;
+```
+
+The bucketSize and timeUnit will define in what chunks Google fit will deliver your data.
+an Example function to get Step Data in chunks of hours, looks like this:
+
+#### **`example.service.ts`**
+
+```ts
+
+import { GoogleFit, SimpleData } from '@perfood/capacitor-google-fit';
+
+export class ExampleService {
+  constructor() {}
+
+  public async getWeight(): Promise<SimpleData[]> {
+    const today = new Date();
+    const lastWeek = new Date();
+
+    lastWeek.setDate(today.getDate() - 7)today.getFullYear(), today.getMonth(), today.getDate() - 7);
+
+    const result = await GoogleFit.getWeight({
+      startTime: lastWeek,
+      endTime: today,
+    });
+
+    return result.weights;
   }
 }
 ```
