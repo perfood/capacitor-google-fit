@@ -165,6 +165,8 @@ timeUnit: TimeUnit; //p.e. "DAYS","HOURS","MINUTES",...
 
 The bucketSize and timeUnit will define the minimum length of an activity.
 
+Many activities will have the type unknown or in_vehicle - you will have to filter those out manually.
+
 an Example function to get Activities, looks like this:
 
 #### **`example.service.ts`**
