@@ -113,7 +113,7 @@ export class ExampleService {
 
 ### Query for Steps
 
-To query for steps, you need to define the following Parameteres, also defined in StepQueryInput:
+To query for steps, you need to define the following Parameteres, also defined in ExtendedQueryInput:
 
 ```
 startTime: Date;
@@ -148,6 +148,48 @@ export class ExampleService {
     });
 
     return result.steps;
+  }
+}
+```
+
+### Query for Activities
+
+To query for steps, you need to define the following Parameteres, also defined in ExtendedQueryInput:
+
+```
+startTime: Date;
+endTime: Date;
+bucketSize: number;
+timeUnit: TimeUnit; //p.e. "DAYS","HOURS","MINUTES",...
+```
+
+The bucketSize and timeUnit will define the minimum length of an activity.
+
+an Example function to get Activities, looks like this:
+
+#### **`example.service.ts`**
+
+```ts
+
+import { GoogleFit, StepData } from '@perfood/capacitor-google-fit';
+
+export class ExampleService {
+  constructor() {}
+
+  public async getActivities(): Promise<ActivityData[]> {
+    const today = new Date();
+    const lastWeek = new Date();
+
+    lastWeek.setDate(today.getDate() - 7)today.getFullYear(), today.getMonth(), today.getDate() - 7);
+
+    const result = await GoogleFit.getSteps({
+      startTime: lastWeek,
+      endTime: today,
+      timeUnit: TimeUnit.MINUTES,
+      bucketSize: 1,
+    });
+
+    return result.activities;
   }
 }
 ```
