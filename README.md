@@ -6,6 +6,9 @@ v2 is going to be a nearly complete rewrite of the plugin and still under heavy 
 
 - [x] Import Steps
 - [x] Import Weight
+      <<<<<<< HEAD
+- [x] # Import Activities
+  > > > > > > > origin/next
 - [ ] Import Activities
 - [ ] Import Sleep
 - [ ] Import Pulse?
@@ -113,7 +116,7 @@ export class ExampleService {
 
 ### Query for Steps
 
-To query for steps, you need to define the following Parameteres, also defined in StepQueryInput:
+To query for steps, you need to define the following Parameteres, also defined in ExtendedQueryInput:
 
 ```
 startTime: Date;
@@ -190,6 +193,48 @@ export class ExampleService {
     });
 
     return result.weights;
+  }
+}
+```
+
+### Query for Activities
+
+To query for actvities, you need to define the following Parameteres, also defined in ExtendedQueryInput:
+
+```
+startTime: Date;
+endTime: Date;
+bucketSize: number;
+timeUnit: TimeUnit; //p.e. "DAYS","HOURS","MINUTES",...
+```
+
+The bucketSize and timeUnit will define the minimum length of an activity.
+
+Many activities will have the type unknown or in_vehicle - you will have to filter those out manually.
+
+an Example function to get Activities, looks like this:
+
+#### **`example.service.ts`**
+
+```ts
+import { GoogleFit, StepData } from '@perfood/capacitor-google-fit';
+export class ExampleService {
+  constructor() {}
+  public async getActivities(): Promise<ActivityData[]> {
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 7,
+    );
+    const result = await GoogleFit.getSteps({
+      startTime: lastWeek,
+      endTime: today,
+      timeUnit: TimeUnit.MINUTES,
+      bucketSize: 1,
+    });
+    return result.activities;
   }
 }
 ```

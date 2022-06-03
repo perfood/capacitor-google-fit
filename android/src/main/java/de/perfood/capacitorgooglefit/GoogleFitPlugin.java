@@ -1,5 +1,6 @@
 package de.perfood.capacitorgooglefit;
 
+import android.Manifest;
 import android.content.Intent;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -58,6 +60,7 @@ public class GoogleFitPlugin extends Plugin {
             .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
             .build();
     }
 
@@ -123,34 +126,11 @@ public class GoogleFitPlugin extends Plugin {
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
 
-        TimeUnit timeUnit = TimeUnit.HOURS;
         String timeUnitInput = call.getString("timeUnit", "HOURS");
 
-        int bucketSize = call.getInt("bucketSize", 1);
+        TimeUnit timeUnit = stringToTimeUnit(timeUnitInput);
 
-        switch (timeUnitInput) {
-            case "NANOSECONDS":
-                timeUnit = TimeUnit.NANOSECONDS;
-                break;
-            case "MICROSECONDS":
-                timeUnit = TimeUnit.MICROSECONDS;
-                break;
-            case "MILLISECONDS":
-                timeUnit = TimeUnit.MILLISECONDS;
-                break;
-            case "SECONDS":
-                timeUnit = TimeUnit.SECONDS;
-                break;
-            case "MINUTES":
-                timeUnit = TimeUnit.MINUTES;
-                break;
-            case "HOURS":
-                timeUnit = TimeUnit.HOURS;
-                break;
-            case "DAYS":
-                timeUnit = TimeUnit.DAYS;
-                break;
-        }
+        int bucketSize = call.getInt("bucketSize", 1);
 
         if (startTime == -1 || endTime == -1 || bucketSize == -1) {
             call.reject("Must provide a start time and end time");
@@ -259,6 +239,91 @@ public class GoogleFitPlugin extends Plugin {
             );
     }
 
+    @PluginMethod
+    public Task<DataReadResponse> getActivities(final PluginCall call) throws ParseException {
+        final GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
+
+        long startTime = dateToTimestamp(call.getString("startTime"));
+        long endTime = dateToTimestamp(call.getString("endTime"));
+        String timeUnitInput = call.getString("timeUnit", "HOURS");
+
+        TimeUnit timeUnit = stringToTimeUnit(timeUnitInput);
+
+        int bucketSize = call.getInt("bucketSize", 1);
+
+        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
+            call.reject("Must provide a start time and end time");
+
+            return null;
+        }
+        DataReadRequest readRequest = new DataReadRequest.Builder()
+            .aggregate(DataType.TYPE_DISTANCE_DELTA)
+            .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
+            .aggregate(DataType.TYPE_SPEED)
+            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
+            .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .bucketByActivitySegment(bucketSize, timeUnit)
+            .enableServerQueries()
+            .build();
+
+        return Fitness
+            .getHistoryClient(getActivity(), account)
+            .readData(readRequest)
+            .addOnSuccessListener(
+                new OnSuccessListener<DataReadResponse>() {
+                    @Override
+                    public void onSuccess(DataReadResponse dataReadResponse) {
+                        List<Bucket> activityBuckets = dataReadResponse.getBuckets();
+
+                        JSONArray activities = new JSONArray();
+
+                        for (Bucket bucket : activityBuckets) {
+                            JSONObject activity = new JSONObject();
+                            try {
+                                activity.put("startTime", timestampToDate(bucket.getStartTime(TimeUnit.MILLISECONDS)));
+                                activity.put("endTime", timestampToDate(bucket.getEndTime(TimeUnit.MILLISECONDS)));
+                                List<DataSet> activityDataSets = bucket.getDataSets();
+
+                                for (DataSet ds : activityDataSets) {
+                                    for (DataPoint dp : ds.getDataPoints()) {
+                                        for (Field field : dp.getDataType().getFields()) {
+                                            String dataTypeName = dp.getDataType().getName();
+                                            switch (dataTypeName) {
+                                                case "com.google.distance.delta":
+                                                    activity.put("distance", dp.getValue(field).toString());
+                                                    break;
+                                                case "com.google.speed.summary":
+                                                    activity.put("speed", dp.getValue(Field.FIELD_AVERAGE).toString());
+                                                    break;
+                                                case "com.google.calories.expended":
+                                                    activity.put("calories", dp.getValue(field).toString());
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                                activity.put("name", bucket.getActivity());
+                                activities.put(activity);
+                            } catch (JSONException e) {
+                                call.reject(e.getMessage());
+                                return;
+                            }
+                        }
+                        JSObject result = new JSObject();
+                        result.put("activities", activities);
+
+                        call.resolve(result);
+                    }
+                }
+            );
+    }
+
     private void dumpDataSet(DataSet dataSet) {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
         for (DataPoint dp : dataSet.getDataPoints()) {
@@ -267,7 +332,7 @@ public class GoogleFitPlugin extends Plugin {
             Log.i(TAG, "\tStart: " + dp.getStartTime(TimeUnit.MILLISECONDS));
             Log.i(TAG, "\tEnd: " + dp.getEndTime(TimeUnit.MILLISECONDS));
             for (Field field : dp.getDataType().getFields()) {
-                Log.i(TAG, "\tField: " + field.getName() + "   Value: " + dp.getValue(field).toString());
+                Log.i(TAG, "\tField: " + field.getName() + "   Value: " + dp.getValue(field));
             }
         }
     }
@@ -288,6 +353,27 @@ public class GoogleFitPlugin extends Plugin {
             return f.parse(date).getTime();
         } catch (ParseException e) {
             return -1;
+        }
+    }
+
+    private TimeUnit stringToTimeUnit(String inputString) {
+        switch (inputString) {
+            case "NANOSECONDS":
+                return TimeUnit.NANOSECONDS;
+            case "MICROSECONDS":
+                return TimeUnit.MICROSECONDS;
+            case "MILLISECONDS":
+                return TimeUnit.MILLISECONDS;
+            case "SECONDS":
+                return TimeUnit.SECONDS;
+            case "MINUTES":
+                return TimeUnit.MINUTES;
+            case "HOURS":
+                return TimeUnit.HOURS;
+            case "DAYS":
+                return TimeUnit.DAYS;
+            default:
+                return TimeUnit.HOURS;
         }
     }
 }
