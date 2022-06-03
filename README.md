@@ -6,7 +6,9 @@ v2 is going to be a nearly complete rewrite of the plugin and still under heavy 
 
 - [x] Import Steps
 - [x] Import Weight
-- [x] Import Activities
+      <<<<<<< HEAD
+- [x] # Import Activities
+  > > > > > > > origin/next
 - [ ] Import Activities
 - [ ] Import Sleep
 - [ ] Import Pulse?
@@ -197,7 +199,7 @@ export class ExampleService {
 
 ### Query for Activities
 
-To query for steps, you need to define the following Parameteres, also defined in ExtendedQueryInput:
+To query for actvities, you need to define the following Parameteres, also defined in ExtendedQueryInput:
 
 ```
 startTime: Date;
