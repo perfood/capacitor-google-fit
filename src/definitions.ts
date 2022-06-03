@@ -14,11 +14,18 @@ export interface GoogleFitPlugin {
   isAllowed(): Promise<AllowedResult>;
 
   /**
-   * Get history
+   * Get step history
    * @returns {Promise}
    * @resolve AccountData
    */
   getSteps(call: StepQueryInput): Promise<StepQueryResult>;
+
+  /**
+   * Get weight history
+   * @returns {Promise}
+   * @resolve StepQueryResult
+   */
+  getWeight(call: QueryInput): Promise<WeightQueryResult>;
 
   /**
    * Get history activity
@@ -50,10 +57,22 @@ export interface DayContainer {
   days: HistoryData[];
 }
 
-export interface StepQueryResult {
-  steps: StepData[];
+/**
+ * The results of a WeightQuery.
+ * The @param value inside of SimpleData has the unit kilograms
+ */
+export interface WeightQueryResult {
+  weights: SimpleData[];
 }
-export interface StepData {
+
+/**
+ * The results of a StepQuery.
+ * The @param value inside of SimpleData always represents a count
+ */
+export interface StepQueryResult {
+  steps: SimpleData[];
+}
+export interface SimpleData {
   startTime: string;
   endTime: string;
   value: number;

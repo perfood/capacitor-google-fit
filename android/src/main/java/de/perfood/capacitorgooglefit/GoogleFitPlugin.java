@@ -204,6 +204,61 @@ public class GoogleFitPlugin extends Plugin {
             );
     }
 
+    @PluginMethod
+    public Task<DataReadResponse> getWeight(final PluginCall call) throws ParseException {
+        final GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
+
+        long startTime = dateToTimestamp(call.getString("startTime"));
+        long endTime = dateToTimestamp(call.getString("endTime"));
+
+        if (startTime == -1 || endTime == -1) {
+            call.reject("Must provide a start time and end time");
+
+            return null;
+        }
+        DataReadRequest readRequest = new DataReadRequest.Builder()
+            .read(DataType.TYPE_WEIGHT)
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .enableServerQueries()
+            .build();
+
+        return Fitness
+            .getHistoryClient(getActivity(), account)
+            .readData(readRequest)
+            .addOnSuccessListener(
+                new OnSuccessListener<DataReadResponse>() {
+                    @Override
+                    public void onSuccess(DataReadResponse dataReadResponse) {
+                        DataSet weightDataSet = dataReadResponse.getDataSet(DataType.TYPE_WEIGHT);
+
+                        JSONArray weights = new JSONArray();
+                        for (DataPoint dp : weightDataSet.getDataPoints()) {
+                            for (Field field : dp.getDataType().getFields()) {
+                                JSONObject weightEntry = new JSONObject();
+                                try {
+                                    weightEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("value", dp.getValue(field).toString());
+                                    weights.put(weightEntry);
+                                } catch (JSONException e) {
+                                    call.reject(e.getMessage());
+                                    return;
+                                }
+                            }
+                        }
+                        JSObject result = new JSObject();
+                        result.put("weights", weights);
+                        call.resolve(result);
+                    }
+                }
+            );
+    }
+
     private void dumpDataSet(DataSet dataSet) {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
         for (DataPoint dp : dataSet.getDataPoints()) {
