@@ -75,12 +75,10 @@ export interface StepQueryResult {
 export interface SimpleData {
   startTime: string;
   endTime: string;
-  value: string;
+  value: number;
 }
 
 export interface ActivityData extends SimpleData {
-  distance?: string;
-  speed?: string;
   calories: number;
   name: string;
 }
