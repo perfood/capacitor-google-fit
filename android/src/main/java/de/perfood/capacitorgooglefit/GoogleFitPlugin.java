@@ -290,7 +290,7 @@ public class GoogleFitPlugin extends Plugin {
                                             String dataTypeName = dp.getDataType().getName();
                                             switch (dataTypeName) {
                                                 case "com.google.calories.expended":
-                                                    activity.put("calories", dp.getValue(field).toString());
+                                                    activity.put("calories", dp.getValue(field).asFloat());
                                                     break;
                                             }
                                         }
