@@ -81,7 +81,7 @@ export interface SimpleData {
 export interface ActivityData extends SimpleData {
   distance?: string;
   speed?: string;
-  calories: string;
+  calories: number;
   name: string;
 }
 
