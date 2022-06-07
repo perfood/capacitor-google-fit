@@ -52,11 +52,8 @@ public class GoogleFitPlugin extends Plugin {
             .builder()
             .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
@@ -262,9 +259,6 @@ public class GoogleFitPlugin extends Plugin {
             return null;
         }
         DataReadRequest readRequest = new DataReadRequest.Builder()
-            .aggregate(DataType.TYPE_DISTANCE_DELTA)
-            .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
-            .aggregate(DataType.TYPE_SPEED)
             .aggregate(DataType.TYPE_CALORIES_EXPENDED)
             .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
@@ -295,12 +289,6 @@ public class GoogleFitPlugin extends Plugin {
                                         for (Field field : dp.getDataType().getFields()) {
                                             String dataTypeName = dp.getDataType().getName();
                                             switch (dataTypeName) {
-                                                case "com.google.distance.delta":
-                                                    activity.put("distance", dp.getValue(field).toString());
-                                                    break;
-                                                case "com.google.speed.summary":
-                                                    activity.put("speed", dp.getValue(Field.FIELD_AVERAGE).toString());
-                                                    break;
                                                 case "com.google.calories.expended":
                                                     activity.put("calories", dp.getValue(field).toString());
                                                     break;
