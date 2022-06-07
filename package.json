@@ -1,6 +1,6 @@
 {
   "name": "@perfood/capacitor-google-fit",
-  "version": "2.0.0-alpha.5",
+  "version": "2.0.0-alpha.6",
   "description": "Capacitor plugin to retrieve data from Google Fit",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
