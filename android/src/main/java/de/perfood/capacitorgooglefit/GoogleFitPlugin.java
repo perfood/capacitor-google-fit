@@ -161,7 +161,7 @@ public class GoogleFitPlugin extends Plugin {
                                         try {
                                             stepEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
                                             stepEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                            stepEntry.put("value", dp.getValue(field).asFloat());
+                                            stepEntry.put("value", dp.getValue(field).asInt());
                                             steps.put(stepEntry);
                                         } catch (JSONException e) {
                                             call.reject(e.getMessage());
