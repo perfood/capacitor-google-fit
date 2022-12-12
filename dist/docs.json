@@ -1,0 +1,1131 @@
+{
+  "api": {
+    "name": "GoogleFitPlugin",
+    "slug": "googlefitplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "connectToGoogleFit",
+        "signature": "() => Promise<void>",
+        "parameters": [],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "returns"
+          },
+          {
+            "name": "resolve",
+            "text": "any"
+          }
+        ],
+        "docs": "Connect to Google Fit",
+        "complexTypes": [],
+        "slug": "connecttogooglefit"
+      },
+      {
+        "name": "isAllowed",
+        "signature": "() => Promise<AllowedResult>",
+        "parameters": [],
+        "returns": "Promise<AllowedResult>",
+        "tags": [
+          {
+            "name": "returns"
+          },
+          {
+            "name": "resolve",
+            "text": "AllowedResult"
+          }
+        ],
+        "docs": "Returns wether the permissions are ok or not",
+        "complexTypes": [
+          "AllowedResult"
+        ],
+        "slug": "isallowed"
+      },
+      {
+        "name": "getSteps",
+        "signature": "(call: ExtendedQueryInput) => Promise<StepQueryResult>",
+        "parameters": [
+          {
+            "name": "call",
+            "docs": "",
+            "type": "ExtendedQueryInput"
+          }
+        ],
+        "returns": "Promise<StepQueryResult>",
+        "tags": [
+          {
+            "name": "returns"
+          },
+          {
+            "name": "resolve",
+            "text": "StepQueryResult"
+          }
+        ],
+        "docs": "Get step history @param bucketSize and @param timeUnit you can define the buckets in which the data is returned",
+        "complexTypes": [
+          "StepQueryResult",
+          "ExtendedQueryInput"
+        ],
+        "slug": "getsteps"
+      },
+      {
+        "name": "getWeight",
+        "signature": "(call: QueryInput) => Promise<WeightQueryResult>",
+        "parameters": [
+          {
+            "name": "call",
+            "docs": "",
+            "type": "QueryInput"
+          }
+        ],
+        "returns": "Promise<WeightQueryResult>",
+        "tags": [
+          {
+            "name": "returns"
+          },
+          {
+            "name": "resolve",
+            "text": "WeightQueryResult"
+          }
+        ],
+        "docs": "Get weight history",
+        "complexTypes": [
+          "WeightQueryResult",
+          "QueryInput"
+        ],
+        "slug": "getweight"
+      },
+      {
+        "name": "getActivities",
+        "signature": "(call: ExtendedQueryInput) => Promise<ActivityQueryResult>",
+        "parameters": [
+          {
+            "name": "call",
+            "docs": "",
+            "type": "ExtendedQueryInput"
+          }
+        ],
+        "returns": "Promise<ActivityQueryResult>",
+        "tags": [
+          {
+            "name": "returns"
+          },
+          {
+            "name": "resolve",
+            "text": "ActivityQueryResult"
+          }
+        ],
+        "docs": "Get Activites, with @param bucketSize and @param timeUnit you can define the minimum length of an activity",
+        "complexTypes": [
+          "ActivityQueryResult",
+          "ExtendedQueryInput"
+        ],
+        "slug": "getactivities"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [
+    {
+      "name": "AllowedResult",
+      "slug": "allowedresult",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "allowed",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "StepQueryResult",
+      "slug": "stepqueryresult",
+      "docs": "The results of a StepQuery.\nThe @param value inside of SimpleData always represents a count",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "steps",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "SimpleData"
+          ],
+          "type": "SimpleData[]"
+        }
+      ]
+    },
+    {
+      "name": "SimpleData",
+      "slug": "simpledata",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "startTime",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "endTime",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ExtendedQueryInput",
+      "slug": "extendedqueryinput",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "bucketSize",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "timeUnit",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "TimeUnit"
+          ],
+          "type": "TimeUnit"
+        }
+      ]
+    },
+    {
+      "name": "WeightQueryResult",
+      "slug": "weightqueryresult",
+      "docs": "The results of a WeightQuery.\nThe @param value inside of SimpleData has the unit kilograms",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "weights",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "SimpleData"
+          ],
+          "type": "SimpleData[]"
+        }
+      ]
+    },
+    {
+      "name": "QueryInput",
+      "slug": "queryinput",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "startTime",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "Date"
+          ],
+          "type": "Date"
+        },
+        {
+          "name": "endTime",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "Date"
+          ],
+          "type": "Date"
+        }
+      ]
+    },
+    {
+      "name": "Date",
+      "slug": "date",
+      "docs": "Enables basic storage and retrieval of dates and times.",
+      "tags": [],
+      "methods": [
+        {
+          "name": "toString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a string representation of a date. The format of the string depends on the locale.",
+          "complexTypes": [],
+          "slug": "tostring"
+        },
+        {
+          "name": "toDateString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a date as a string value.",
+          "complexTypes": [],
+          "slug": "todatestring"
+        },
+        {
+          "name": "toTimeString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a time as a string value.",
+          "complexTypes": [],
+          "slug": "totimestring"
+        },
+        {
+          "name": "toLocaleString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a value as a string value appropriate to the host environment's current locale.",
+          "complexTypes": [],
+          "slug": "tolocalestring"
+        },
+        {
+          "name": "toLocaleDateString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a date as a string value appropriate to the host environment's current locale.",
+          "complexTypes": [],
+          "slug": "tolocaledatestring"
+        },
+        {
+          "name": "toLocaleTimeString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a time as a string value appropriate to the host environment's current locale.",
+          "complexTypes": [],
+          "slug": "tolocaletimestring"
+        },
+        {
+          "name": "valueOf",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Returns the stored time value in milliseconds since midnight, January 1, 1970 UTC.",
+          "complexTypes": [],
+          "slug": "valueof"
+        },
+        {
+          "name": "getTime",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the time value in milliseconds.",
+          "complexTypes": [],
+          "slug": "gettime"
+        },
+        {
+          "name": "getFullYear",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the year, using local time.",
+          "complexTypes": [],
+          "slug": "getfullyear"
+        },
+        {
+          "name": "getUTCFullYear",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the year using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcfullyear"
+        },
+        {
+          "name": "getMonth",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the month, using local time.",
+          "complexTypes": [],
+          "slug": "getmonth"
+        },
+        {
+          "name": "getUTCMonth",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the month of a Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcmonth"
+        },
+        {
+          "name": "getDate",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the day-of-the-month, using local time.",
+          "complexTypes": [],
+          "slug": "getdate"
+        },
+        {
+          "name": "getUTCDate",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the day-of-the-month, using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcdate"
+        },
+        {
+          "name": "getDay",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the day of the week, using local time.",
+          "complexTypes": [],
+          "slug": "getday"
+        },
+        {
+          "name": "getUTCDay",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the day of the week using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcday"
+        },
+        {
+          "name": "getHours",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the hours in a date, using local time.",
+          "complexTypes": [],
+          "slug": "gethours"
+        },
+        {
+          "name": "getUTCHours",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the hours value in a Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutchours"
+        },
+        {
+          "name": "getMinutes",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the minutes of a Date object, using local time.",
+          "complexTypes": [],
+          "slug": "getminutes"
+        },
+        {
+          "name": "getUTCMinutes",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the minutes of a Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcminutes"
+        },
+        {
+          "name": "getSeconds",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the seconds of a Date object, using local time.",
+          "complexTypes": [],
+          "slug": "getseconds"
+        },
+        {
+          "name": "getUTCSeconds",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the seconds of a Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcseconds"
+        },
+        {
+          "name": "getMilliseconds",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the milliseconds of a Date, using local time.",
+          "complexTypes": [],
+          "slug": "getmilliseconds"
+        },
+        {
+          "name": "getUTCMilliseconds",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the milliseconds of a Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "getutcmilliseconds"
+        },
+        {
+          "name": "getTimezoneOffset",
+          "signature": "() => number",
+          "parameters": [],
+          "returns": "number",
+          "tags": [],
+          "docs": "Gets the difference in minutes between the time on the local computer and Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "gettimezoneoffset"
+        },
+        {
+          "name": "setTime",
+          "signature": "(time: number) => number",
+          "parameters": [
+            {
+              "name": "time",
+              "docs": "A numeric value representing the number of elapsed milliseconds since midnight, January 1, 1970 GMT.",
+              "type": "number"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "time A numeric value representing the number of elapsed milliseconds since midnight, January 1, 1970 GMT."
+            }
+          ],
+          "docs": "Sets the date and time value in the Date object.",
+          "complexTypes": [],
+          "slug": "settime"
+        },
+        {
+          "name": "setMilliseconds",
+          "signature": "(ms: number) => number",
+          "parameters": [
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the millisecond value.",
+              "type": "number"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the millisecond value."
+            }
+          ],
+          "docs": "Sets the milliseconds value in the Date object using local time.",
+          "complexTypes": [],
+          "slug": "setmilliseconds"
+        },
+        {
+          "name": "setUTCMilliseconds",
+          "signature": "(ms: number) => number",
+          "parameters": [
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the millisecond value.",
+              "type": "number"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the millisecond value."
+            }
+          ],
+          "docs": "Sets the milliseconds value in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutcmilliseconds"
+        },
+        {
+          "name": "setSeconds",
+          "signature": "(sec: number, ms?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "sec",
+              "docs": "A numeric value equal to the seconds value.",
+              "type": "number"
+            },
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the milliseconds value.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "sec A numeric value equal to the seconds value."
+            },
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the milliseconds value."
+            }
+          ],
+          "docs": "Sets the seconds value in the Date object using local time.",
+          "complexTypes": [],
+          "slug": "setseconds"
+        },
+        {
+          "name": "setUTCSeconds",
+          "signature": "(sec: number, ms?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "sec",
+              "docs": "A numeric value equal to the seconds value.",
+              "type": "number"
+            },
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the milliseconds value.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "sec A numeric value equal to the seconds value."
+            },
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the milliseconds value."
+            }
+          ],
+          "docs": "Sets the seconds value in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutcseconds"
+        },
+        {
+          "name": "setMinutes",
+          "signature": "(min: number, sec?: number | undefined, ms?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "min",
+              "docs": "A numeric value equal to the minutes value.",
+              "type": "number"
+            },
+            {
+              "name": "sec",
+              "docs": "A numeric value equal to the seconds value.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the milliseconds value.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "min A numeric value equal to the minutes value."
+            },
+            {
+              "name": "param",
+              "text": "sec A numeric value equal to the seconds value."
+            },
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the milliseconds value."
+            }
+          ],
+          "docs": "Sets the minutes value in the Date object using local time.",
+          "complexTypes": [],
+          "slug": "setminutes"
+        },
+        {
+          "name": "setUTCMinutes",
+          "signature": "(min: number, sec?: number | undefined, ms?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "min",
+              "docs": "A numeric value equal to the minutes value.",
+              "type": "number"
+            },
+            {
+              "name": "sec",
+              "docs": "A numeric value equal to the seconds value.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the milliseconds value.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "min A numeric value equal to the minutes value."
+            },
+            {
+              "name": "param",
+              "text": "sec A numeric value equal to the seconds value."
+            },
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the milliseconds value."
+            }
+          ],
+          "docs": "Sets the minutes value in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutcminutes"
+        },
+        {
+          "name": "setHours",
+          "signature": "(hours: number, min?: number | undefined, sec?: number | undefined, ms?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "hours",
+              "docs": "A numeric value equal to the hours value.",
+              "type": "number"
+            },
+            {
+              "name": "min",
+              "docs": "A numeric value equal to the minutes value.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "sec",
+              "docs": "A numeric value equal to the seconds value.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the milliseconds value.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "hours A numeric value equal to the hours value."
+            },
+            {
+              "name": "param",
+              "text": "min A numeric value equal to the minutes value."
+            },
+            {
+              "name": "param",
+              "text": "sec A numeric value equal to the seconds value."
+            },
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the milliseconds value."
+            }
+          ],
+          "docs": "Sets the hour value in the Date object using local time.",
+          "complexTypes": [],
+          "slug": "sethours"
+        },
+        {
+          "name": "setUTCHours",
+          "signature": "(hours: number, min?: number | undefined, sec?: number | undefined, ms?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "hours",
+              "docs": "A numeric value equal to the hours value.",
+              "type": "number"
+            },
+            {
+              "name": "min",
+              "docs": "A numeric value equal to the minutes value.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "sec",
+              "docs": "A numeric value equal to the seconds value.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "ms",
+              "docs": "A numeric value equal to the milliseconds value.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "hours A numeric value equal to the hours value."
+            },
+            {
+              "name": "param",
+              "text": "min A numeric value equal to the minutes value."
+            },
+            {
+              "name": "param",
+              "text": "sec A numeric value equal to the seconds value."
+            },
+            {
+              "name": "param",
+              "text": "ms A numeric value equal to the milliseconds value."
+            }
+          ],
+          "docs": "Sets the hours value in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutchours"
+        },
+        {
+          "name": "setDate",
+          "signature": "(date: number) => number",
+          "parameters": [
+            {
+              "name": "date",
+              "docs": "A numeric value equal to the day of the month.",
+              "type": "number"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "date A numeric value equal to the day of the month."
+            }
+          ],
+          "docs": "Sets the numeric day-of-the-month value of the Date object using local time.",
+          "complexTypes": [],
+          "slug": "setdate"
+        },
+        {
+          "name": "setUTCDate",
+          "signature": "(date: number) => number",
+          "parameters": [
+            {
+              "name": "date",
+              "docs": "A numeric value equal to the day of the month.",
+              "type": "number"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "date A numeric value equal to the day of the month."
+            }
+          ],
+          "docs": "Sets the numeric day of the month in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutcdate"
+        },
+        {
+          "name": "setMonth",
+          "signature": "(month: number, date?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "month",
+              "docs": "A numeric value equal to the month. The value for January is 0, and other month values follow consecutively.",
+              "type": "number"
+            },
+            {
+              "name": "date",
+              "docs": "A numeric value representing the day of the month. If this value is not supplied, the value from a call to the getDate method is used.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "month A numeric value equal to the month. The value for January is 0, and other month values follow consecutively."
+            },
+            {
+              "name": "param",
+              "text": "date A numeric value representing the day of the month. If this value is not supplied, the value from a call to the getDate method is used."
+            }
+          ],
+          "docs": "Sets the month value in the Date object using local time.",
+          "complexTypes": [],
+          "slug": "setmonth"
+        },
+        {
+          "name": "setUTCMonth",
+          "signature": "(month: number, date?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "month",
+              "docs": "A numeric value equal to the month. The value for January is 0, and other month values follow consecutively.",
+              "type": "number"
+            },
+            {
+              "name": "date",
+              "docs": "A numeric value representing the day of the month. If it is not supplied, the value from a call to the getUTCDate method is used.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "month A numeric value equal to the month. The value for January is 0, and other month values follow consecutively."
+            },
+            {
+              "name": "param",
+              "text": "date A numeric value representing the day of the month. If it is not supplied, the value from a call to the getUTCDate method is used."
+            }
+          ],
+          "docs": "Sets the month value in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutcmonth"
+        },
+        {
+          "name": "setFullYear",
+          "signature": "(year: number, month?: number | undefined, date?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "year",
+              "docs": "A numeric value for the year.",
+              "type": "number"
+            },
+            {
+              "name": "month",
+              "docs": "A zero-based numeric value for the month (0 for January, 11 for December). Must be specified if numDate is specified.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "date",
+              "docs": "A numeric value equal for the day of the month.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "year A numeric value for the year."
+            },
+            {
+              "name": "param",
+              "text": "month A zero-based numeric value for the month (0 for January, 11 for December). Must be specified if numDate is specified."
+            },
+            {
+              "name": "param",
+              "text": "date A numeric value equal for the day of the month."
+            }
+          ],
+          "docs": "Sets the year of the Date object using local time.",
+          "complexTypes": [],
+          "slug": "setfullyear"
+        },
+        {
+          "name": "setUTCFullYear",
+          "signature": "(year: number, month?: number | undefined, date?: number | undefined) => number",
+          "parameters": [
+            {
+              "name": "year",
+              "docs": "A numeric value equal to the year.",
+              "type": "number"
+            },
+            {
+              "name": "month",
+              "docs": "A numeric value equal to the month. The value for January is 0, and other month values follow consecutively. Must be supplied if numDate is supplied.",
+              "type": "number | undefined"
+            },
+            {
+              "name": "date",
+              "docs": "A numeric value equal to the day of the month.",
+              "type": "number | undefined"
+            }
+          ],
+          "returns": "number",
+          "tags": [
+            {
+              "name": "param",
+              "text": "year A numeric value equal to the year."
+            },
+            {
+              "name": "param",
+              "text": "month A numeric value equal to the month. The value for January is 0, and other month values follow consecutively. Must be supplied if numDate is supplied."
+            },
+            {
+              "name": "param",
+              "text": "date A numeric value equal to the day of the month."
+            }
+          ],
+          "docs": "Sets the year value in the Date object using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "setutcfullyear"
+        },
+        {
+          "name": "toUTCString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a date converted to a string using Universal Coordinated Time (UTC).",
+          "complexTypes": [],
+          "slug": "toutcstring"
+        },
+        {
+          "name": "toISOString",
+          "signature": "() => string",
+          "parameters": [],
+          "returns": "string",
+          "tags": [],
+          "docs": "Returns a date as a string value in ISO format.",
+          "complexTypes": [],
+          "slug": "toisostring"
+        },
+        {
+          "name": "toJSON",
+          "signature": "(key?: any) => string",
+          "parameters": [
+            {
+              "name": "key",
+              "docs": "",
+              "type": "any"
+            }
+          ],
+          "returns": "string",
+          "tags": [],
+          "docs": "Used by the JSON.stringify method to enable the transformation of an object's data for JavaScript Object Notation (JSON) serialization.",
+          "complexTypes": [],
+          "slug": "tojson"
+        }
+      ],
+      "properties": []
+    },
+    {
+      "name": "ActivityQueryResult",
+      "slug": "activityqueryresult",
+      "docs": "The results of a ActivityQuery.\nThe @param value inside of SimpleData has the values representing the Google Fit Constants as the name of the activity",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "activities",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [
+            "ActivityData"
+          ],
+          "type": "ActivityData[]"
+        }
+      ]
+    },
+    {
+      "name": "ActivityData",
+      "slug": "activitydata",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "calories",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "TimeUnit",
+      "slug": "timeunit",
+      "members": [
+        {
+          "name": "NANOSECONDS",
+          "value": "'NANOSECONDS'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "MICROSECONDS",
+          "value": "'MICROSECONDS'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "MILLISECONDS",
+          "value": "'MILLISECONDS'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "SECONDS",
+          "value": "'SECONDS'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "MINUTES",
+          "value": "'MINUTES'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "HOURS",
+          "value": "'HOURS'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "DAYS",
+          "value": "'DAYS'",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    }
+  ],
+  "typeAliases": [],
+  "pluginConfigs": []
+}
