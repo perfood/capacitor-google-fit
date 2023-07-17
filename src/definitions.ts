@@ -14,11 +14,26 @@ export interface GoogleFitPlugin {
   isAllowed(): Promise<AllowedResult>;
 
   /**
+   * Check if Google Fit is installed
+   */
+  isGoogleFitInstalled(): Promise<{ value: boolean }>;
+
+  /**
    * Get history
    * @returns {Promise}
    * @resolve AccountData
    */
   getHistory(call: QueryInput): Promise<DayContainer>;
+
+  /**
+   * setWriteSleepData
+   */
+  setWriteSleepData(call: SetSleepData): Promise<{ value: string }>;
+
+  /**
+   * readSleepData
+   */
+  readSleepData(call: QueryInput): Promise<any>;
 
   /**
    * Get history activity
@@ -35,6 +50,12 @@ export interface PermissionData {
 export interface QueryInput {
   startTime: Date;
   endTime: Date;
+}
+
+export interface SetSleepData {
+  startTime: Date;
+  endTime: Date;
+  sleepStage: number;
 }
 
 export interface ActivityContainer {

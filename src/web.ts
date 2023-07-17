@@ -16,6 +16,15 @@ export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
   async isAllowed(): Promise<AllowedResult> {
     throw new Error('Method not implemented.');
   }
+  async setWriteSleepData(): Promise<{ value: string }> {
+    throw new Error('Method not implemented.');
+  }
+  async readSleepData(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async isGoogleFitInstalled(): Promise<{ value: boolean }> {
+    throw new Error('Method not implemented.');
+  }
   async getHistory(): Promise<any> {
     throw new Error('Method not implemented.');
   }
