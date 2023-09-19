@@ -36,6 +36,11 @@ export interface GoogleFitPlugin {
   setWriteSleepData(call: SetSleepData): Promise<{ value: string }>;
 
   /**
+   * settingSleepSegment
+   */
+  settingSleepSegment(call: QueryInput): Promise<{ value: string }>;
+
+  /**
    * writeStepCountData
    */
   writeStepCountData(call: SetStepCountData): Promise<{ value: string }>;

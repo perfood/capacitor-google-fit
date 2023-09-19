@@ -1,5 +1,6 @@
 package com.adscientiam.capacitor.googlefit;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,7 +16,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessOptions;
@@ -33,14 +33,11 @@ import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,6 +81,23 @@ public class GoogleFitPlugin extends Plugin {
         GoogleSignIn.requestPermissions(getActivity(), GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, getAccount(), getFitnessSignInOptions());
     }
 
+    // @Override
+    // public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    //     super.onActivityResult(requestCode, resultCode, data);
+
+    //     if (requestCode == RC_SIGN_IN) {
+    //         if (resultCode == Activity.RESULT_OK) {
+    //             // ログイン成功時の処理
+    //             GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this.getActivity());
+    //             requestPermissions(); // ログイン成功時にパーミッションをリクエストする
+    //         }
+    //         // else {
+    //         //     // ログインキャンセルまたは失敗時の処理
+    //         //     // エラーを適切に処理するか、必要に応じて追加の処理を実行する
+    //         // }
+    //     }
+    // }
+
     @PluginMethod
     public void logoutGoogleFit(PluginCall call) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -100,7 +114,6 @@ public class GoogleFitPlugin extends Plugin {
             GoogleSignInClient signInClient = GoogleSignIn.getClient(this.getActivity(), gso);
             Intent signInIntent = signInClient.getSignInIntent();
             startActivityForResult(call, signInIntent, RC_SIGN_IN);
-            this.requestPermissions();
         } else {
             this.requestPermissions();
         }
@@ -135,19 +148,32 @@ public class GoogleFitPlugin extends Plugin {
 
     @Override
     protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-        super.handleOnActivityResult(requestCode, resultCode, data);
-        PluginCall savedCall = getSavedCall();
-
-        if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-            savedCall.resolve();
-        } else if (requestCode == RC_SIGN_IN) {
-            if (!GoogleSignIn.hasPermissions(this.getAccount(), getFitnessSignInOptions())) {
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode == Activity.RESULT_OK) {
+                // ログインが成功した場合に、権限をリクエスト
                 this.requestPermissions();
             } else {
-                savedCall.resolve();
+                // ログインが失敗した場合の処理
+                // ここにエラーハンドリングを追加できます
             }
         }
     }
+
+    // @Override
+    // protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
+    //     super.handleOnActivityResult(requestCode, resultCode, data);
+    //     PluginCall savedCall = getSavedCall();
+
+    //     if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+    //         savedCall.resolve();
+    //     } else if (requestCode == RC_SIGN_IN) {
+    //         if (!GoogleSignIn.hasPermissions(this.getAccount(), getFitnessSignInOptions())) {
+    //             this.requestPermissions();
+    //         } else {
+    //             savedCall.resolve();
+    //         }
+    //     }
+    // }
 
     @PluginMethod
     public Task<DataReadResponse> getHistory(final PluginCall call) throws ParseException {
@@ -398,26 +424,26 @@ public class GoogleFitPlugin extends Plugin {
         long endTime = dateToTimestamp(call.getString("endTime"));
         int sleepStage = call.getInt("sleepStage");
 
-        int sleep;
+        // int sleep;
 
-        switch (sleepStage) {
-            case -1:
-                sleep = SleepStages.AWAKE;
-                break;
-            case 0:
-                sleep = SleepStages.SLEEP_REM;
-                break;
-            case 1:
-            case 2:
-                sleep = SleepStages.SLEEP_LIGHT;
-                break;
-            case 3:
-                sleep = SleepStages.SLEEP_DEEP;
-                break;
-            default:
-                sleep = SleepStages.OUT_OF_BED;
-                break;
-        }
+        // switch (sleepStage) {
+        //     case -1:
+        //         sleep = SleepStages.AWAKE;
+        //         break;
+        //     case 0:
+        //         sleep = SleepStages.SLEEP_REM;
+        //         break;
+        //     case 1:
+        //     case 2:
+        //         sleep = SleepStages.SLEEP_LIGHT;
+        //         break;
+        //     case 3:
+        //         sleep = SleepStages.SLEEP_DEEP;
+        //         break;
+        //     default:
+        //         sleep = SleepStages.OUT_OF_BED;
+        //         break;
+        // }
 
         //        .setAppPackageName(getString(R.string.package_name))
         DataSource sleepDataSource = new DataSource.Builder().setDataType(DataType.TYPE_SLEEP_SEGMENT).setType(DataSource.TYPE_RAW).build();
@@ -436,7 +462,10 @@ public class GoogleFitPlugin extends Plugin {
         DataPoint sleepStageDataPoint = DataPoint
             .builder(sleepDataSource)
             .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
-            .setField(Field.FIELD_SLEEP_SEGMENT_TYPE, sleep)
+            // .setField(Field.FIELD_SLEEP_SEGMENT_TYPE, sleep)
+
+            // inbed
+            .setField(Field.FIELD_SLEEP_SEGMENT_TYPE, SleepStages.IN_BED)
             .build();
 
         DataSet sleepStageDataSet = DataSet.builder(sleepDataSource).add(sleepStageDataPoint).build();
@@ -472,6 +501,59 @@ public class GoogleFitPlugin extends Plugin {
         } catch (ParseException e) {
             return -1;
         }
+    }
+
+    @PluginMethod
+    public Task<DataReadResponse> settingSleepSegment(final PluginCall call) throws ParseException {
+        final GoogleSignInAccount account = getAccount();
+
+        if (account == null) {
+            call.reject("No access");
+            return null;
+        }
+
+        long startTime = dateToTimestamp(call.getString("startTime"));
+        long endTime = dateToTimestamp(call.getString("endTime"));
+
+        // 睡眠セッションの書き込み
+        // 睡眠セッションの書き込み
+        SessionInsertRequest.Builder insertRequestBuilder = new SessionInsertRequest.Builder();
+
+        // 睡眠セッションの設定
+        Session session = new Session.Builder()
+            .setName("Sleep Session") // セッションの名前
+            .setStartTime(startTime, TimeUnit.MILLISECONDS) // 開始時間
+            .setEndTime(endTime, TimeUnit.MILLISECONDS) // 終了時間
+            .setActivity(FitnessActivities.SLEEP) // アクティビティを睡眠に設定
+            .build();
+
+        // 睡眠セッションを書き込む
+        Task<Void> insertSessionTask = Fitness.getSessionsClient(getActivity(), account).insertSession(insertRequestBuilder.build());
+
+        insertSessionTask.addOnSuccessListener(
+            new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    JSObject ret = new JSObject();
+                    ret.put("value", "success");
+                    // 睡眠セッションの書き込みに成功した場合の処理
+                    call.resolve(ret);
+                }
+            }
+        );
+
+        insertSessionTask.addOnFailureListener(
+            new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // 睡眠セッションの書き込みに失敗した場合の処理
+                    call.reject(e.getMessage());
+                    // call.reject("Failed to add sleep session: " + e.getMessage());
+                }
+            }
+        );
+
+        return null;
     }
 
     @PluginMethod
