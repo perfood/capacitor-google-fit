@@ -70,6 +70,7 @@ export interface QueryInput {
 export interface SetSleepData {
   startTime: Date;
   endTime: Date;
+  id: string;
   sleepStage: number;
 }
 

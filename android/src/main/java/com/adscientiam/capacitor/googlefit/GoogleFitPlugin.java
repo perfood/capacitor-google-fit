@@ -1,6 +1,7 @@
 package com.adscientiam.capacitor.googlefit;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessOptions;
@@ -26,7 +28,7 @@ import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.data.Session;
-import com.google.android.gms.fitness.data.SleepStages;
+//import com.google.android.gms.fitness.data.SleepStages;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.google.android.gms.fitness.result.DataReadResponse;
@@ -54,6 +56,8 @@ public class GoogleFitPlugin extends Plugin {
     private FitnessOptions getFitnessSignInOptions() {
         // FitnessOptions instance, declaring the Fit API data types
         // and access required
+
+        // 変更を加える場合は、connectToGoogleFitも変更する必要がある
         return FitnessOptions
             .builder()
             .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
@@ -66,8 +70,8 @@ public class GoogleFitPlugin extends Plugin {
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ) // 体重
             .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_WRITE) // 体重
-            .addDataType(DataType.TYPE_SLEEP_SEGMENT, FitnessOptions.ACCESS_READ) // 睡眠
-            .addDataType(DataType.TYPE_SLEEP_SEGMENT, FitnessOptions.ACCESS_WRITE) // 睡眠
+            // .addDataType(DataType.TYPE_SLEEP_SEGMENT, FitnessOptions.ACCESS_READ) // 睡眠
+            // .addDataType(DataType.TYPE_SLEEP_SEGMENT, FitnessOptions.ACCESS_WRITE) // 睡眠
             .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ) // 歩数
             .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_WRITE) // 歩数
             .build();
@@ -106,14 +110,33 @@ public class GoogleFitPlugin extends Plugin {
         call.resolve();
     }
 
+    // @PluginMethod
+    // public void connectToGoogleFit(PluginCall call) {
+    //     // new AlertDialog.Builder(getContext())
+    //     //     .setTitle("JAVAのアラート")
+    //     //     .setMessage("connectToGoogleFit")
+    //     //     .setPositiveButton("OK", null)
+    //     //     .show();
+    //     GoogleSignInAccount account = getAccount();
+    //     if (account == null) {
+    //         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+    //         GoogleSignInClient signInClient = GoogleSignIn.getClient(this.getActivity(), gso);
+    //         Intent signInIntent = signInClient.getSignInIntent();
+    //         startActivityForResult(call, signInIntent, RC_SIGN_IN);
+    //     } else {
+    //         this.requestPermissions();
+    //     }
+    //     call.resolve();
+    // }
+
     @PluginMethod
     public void connectToGoogleFit(PluginCall call) {
         GoogleSignInAccount account = getAccount();
         if (account == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
             GoogleSignInClient signInClient = GoogleSignIn.getClient(this.getActivity(), gso);
-            Intent signInIntent = signInClient.getSignInIntent();
-            startActivityForResult(call, signInIntent, RC_SIGN_IN);
+            Intent intent = signInClient.getSignInIntent();
+            startActivityForResult(call, intent, RC_SIGN_IN);
         } else {
             this.requestPermissions();
         }
@@ -148,32 +171,25 @@ public class GoogleFitPlugin extends Plugin {
 
     @Override
     protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RC_SIGN_IN) {
-            if (resultCode == Activity.RESULT_OK) {
-                // ログインが成功した場合に、権限をリクエスト
+        // new AlertDialog.Builder(getContext())
+        //     .setTitle("JAVAのアラート")
+        //     .setMessage("handleOnActivityResult")
+        //     .setPositiveButton("OK", null)
+        //     .show();
+
+        super.handleOnActivityResult(requestCode, resultCode, data);
+        PluginCall savedCall = getSavedCall();
+
+        if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+            savedCall.resolve();
+        } else if (requestCode == RC_SIGN_IN) {
+            if (!GoogleSignIn.hasPermissions(this.getAccount(), getFitnessSignInOptions())) {
                 this.requestPermissions();
             } else {
-                // ログインが失敗した場合の処理
-                // ここにエラーハンドリングを追加できます
+                savedCall.resolve();
             }
         }
     }
-
-    // @Override
-    // protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-    //     super.handleOnActivityResult(requestCode, resultCode, data);
-    //     PluginCall savedCall = getSavedCall();
-
-    //     if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-    //         savedCall.resolve();
-    //     } else if (requestCode == RC_SIGN_IN) {
-    //         if (!GoogleSignIn.hasPermissions(this.getAccount(), getFitnessSignInOptions())) {
-    //             this.requestPermissions();
-    //         } else {
-    //             savedCall.resolve();
-    //         }
-    //     }
-    // }
 
     @PluginMethod
     public Task<DataReadResponse> getHistory(final PluginCall call) throws ParseException {
@@ -356,6 +372,7 @@ public class GoogleFitPlugin extends Plugin {
 
     @PluginMethod
     public Task<DataReadResponse> readSleepData(final PluginCall call) throws ParseException {
+        // 未実装
         final GoogleSignInAccount account = getAccount();
 
         if (account == null) {
@@ -366,48 +383,52 @@ public class GoogleFitPlugin extends Plugin {
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
 
-        DataReadRequest readRequest = new DataReadRequest.Builder()
-            .read(DataType.TYPE_SLEEP_SEGMENT)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .build();
+        JSObject result = new JSObject();
+        result.put("sleeps", "OK");
+        call.resolve(result);
 
-        Fitness
-            .getHistoryClient(getActivity(), account)
-            .readData(readRequest)
-            .addOnSuccessListener(
-                new OnSuccessListener<DataReadResponse>() {
-                    @Override
-                    public void onSuccess(DataReadResponse dataReadResponse) {
-                        List<DataSet> dataSets = dataReadResponse.getDataSets();
-                        JSONArray sleeps = new JSONArray();
-                        for (DataSet dataSet : dataSets) {
-                            for (DataPoint dp : dataSet.getDataPoints()) {
-                                JSONObject summary = new JSONObject();
-                                try {
-                                    summary.put("start", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                                    summary.put("end", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                    summary.put("sleep", dp.getValue(Field.FIELD_SLEEP_SEGMENT_TYPE));
-                                } catch (JSONException e) {
-                                    call.reject(e.getMessage());
-                                    return;
-                                }
-                                sleeps.put(summary);
-                            }
-                        }
-                        JSObject result = new JSObject();
-                        result.put("sleeps", sleeps);
-                        call.resolve(result);
-                    }
-                }
-            )
-            .addOnFailureListener(
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        call.reject(e.getMessage());
-                    }
-                }
-            );
+        // DataReadRequest readRequest = new DataReadRequest.Builder()
+        //     .read(DataType.TYPE_SLEEP_SEGMENT)
+        //     .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+        //     .build();
+
+        // Fitness
+        //     .getHistoryClient(getActivity(), account)
+        //     .readData(readRequest)
+        //     .addOnSuccessListener(
+        //         new OnSuccessListener<DataReadResponse>() {
+        //             @Override
+        //             public void onSuccess(DataReadResponse dataReadResponse) {
+        //                 List<DataSet> dataSets = dataReadResponse.getDataSets();
+        //                 JSONArray sleeps = new JSONArray();
+        //                 for (DataSet dataSet : dataSets) {
+        //                     for (DataPoint dp : dataSet.getDataPoints()) {
+        //                         JSONObject summary = new JSONObject();
+        //                         try {
+        //                             summary.put("start", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+        //                             summary.put("end", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+        //                             summary.put("sleep", dp.getValue(Field.FIELD_SLEEP_SEGMENT_TYPE));
+        //                         } catch (JSONException e) {
+        //                             call.reject(e.getMessage());
+        //                             return;
+        //                         }
+        //                         sleeps.put(summary);
+        //                     }
+        //                 }
+        //                 JSObject result = new JSObject();
+        //                 result.put("sleeps", sleeps);
+        //                 call.resolve(result);
+        //             }
+        //         }
+        //     )
+        //     .addOnFailureListener(
+        //         new OnFailureListener() {
+        //             @Override
+        //             public void onFailure(@NonNull Exception e) {
+        //                 call.reject(e.getMessage());
+        //             }
+        //         }
+        // );
         return null;
     }
 
@@ -422,6 +443,7 @@ public class GoogleFitPlugin extends Plugin {
 
         long startTime = dateToTimestamp(call.getString("startTime"));
         long endTime = dateToTimestamp(call.getString("endTime"));
+        String id = call.getString("id");
         int sleepStage = call.getInt("sleepStage");
 
         // int sleep;
@@ -446,31 +468,27 @@ public class GoogleFitPlugin extends Plugin {
         // }
 
         //        .setAppPackageName(getString(R.string.package_name))
-        DataSource sleepDataSource = new DataSource.Builder().setDataType(DataType.TYPE_SLEEP_SEGMENT).setType(DataSource.TYPE_RAW).build();
+        // DataSource sleepDataSource = new DataSource.Builder().setDataType(DataType.TYPE_SLEEP_SEGMENT).setType(DataSource.TYPE_RAW).build();
 
         Session session = new Session.Builder()
             .setName("Sleep session")
-            .setDescription("Sleep data from my app")
-            .setIdentifier("UniqueIdentifierHere")
+            .setDescription("Sleep data from SOXAI")
+            .setIdentifier(id)
             .setActivity(FitnessActivities.SLEEP)
             .setStartTime(startTime, TimeUnit.MILLISECONDS)
             .setEndTime(endTime, TimeUnit.MILLISECONDS)
             .setActivity(FitnessActivities.SLEEP)
-            .setIdentifier("UniqueIdentifierHere")
             .build();
 
-        DataPoint sleepStageDataPoint = DataPoint
-            .builder(sleepDataSource)
-            .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
-            // .setField(Field.FIELD_SLEEP_SEGMENT_TYPE, sleep)
+        // DataPoint sleepStageDataPoint = DataPoint
+        //     .builder(sleepDataSource)
+        //     .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+        //     .setField(Field.FIELD_SLEEP_SEGMENT_TYPE, sleep)
+        //     .build();
 
-            // inbed
-            .setField(Field.FIELD_SLEEP_SEGMENT_TYPE, SleepStages.IN_BED)
-            .build();
+        // DataSet sleepStageDataSet = DataSet.builder(sleepDataSource).add(sleepStageDataPoint).build();
 
-        DataSet sleepStageDataSet = DataSet.builder(sleepDataSource).add(sleepStageDataPoint).build();
-
-        SessionInsertRequest request = new SessionInsertRequest.Builder().setSession(session).addDataSet(sleepStageDataSet).build();
+        SessionInsertRequest request = new SessionInsertRequest.Builder().setSession(session).build();
 
         JSObject ret = new JSObject();
         ret.put("value", "success");
@@ -572,7 +590,7 @@ public class GoogleFitPlugin extends Plugin {
         DataSource stepCountDataSource = new DataSource.Builder()
             .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
             .setType(DataSource.TYPE_RAW)
-            .setAppPackageName(getActivity()) // これを追加
+            .setAppPackageName(getActivity())
             .build();
 
         DataPoint stepCountDataPoint = DataPoint
