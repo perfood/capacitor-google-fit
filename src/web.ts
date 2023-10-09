@@ -43,4 +43,7 @@ export class GoogleFitWeb extends WebPlugin implements GoogleFitPlugin {
   async getHistoryActivity(): Promise<any> {
     throw new Error('Method not implemented.');
   }
+  async getHistoryActivityPerDay(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 }

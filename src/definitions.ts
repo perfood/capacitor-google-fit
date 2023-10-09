@@ -56,6 +56,13 @@ export interface GoogleFitPlugin {
    * @resolve AccountData
    */
   getHistoryActivity(call: QueryInput): Promise<ActivityContainer>;
+
+  /**
+   * Get history activity per day
+   * @returns {Promise}
+   * @resolve AccountData
+   */
+  getHistoryActivityPerDay(call: QueryInput): Promise<ActivityContainer>;
 }
 
 export interface PermissionData {
