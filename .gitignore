@@ -2,12 +2,6 @@
 dist
 node_modules
 
-# iOS files
-Pods
-Podfile.lock
-Build
-xcuserdata
-
 # macOS files
 .DS_Store
 

@@ -1,19 +1,18 @@
 package de.perfood.capacitorgooglefit;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
-import androidx.annotation.NonNull;
+import android.Manifest;
+
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.getcapacitor.annotation.Permission;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
@@ -22,6 +21,8 @@ import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
+import com.google.android.gms.fitness.FitnessActivities;
+
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -36,92 +37,102 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import androidx.core.content.ContextCompat;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+
+
 
 @CapacitorPlugin(name = "GoogleFit")
 @NativePlugin(requestCodes = { GoogleFitPlugin.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, GoogleFitPlugin.RC_SIGN_IN })
 public class GoogleFitPlugin extends Plugin {
 
-    public static final String TAG = "HistoryApi";
+    public static final String TAG = "capacitor-google-fit";
     static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 19849;
     static final int RC_SIGN_IN = 1337;
 
-    private FitnessOptions getFitnessSignInOptions() {
-        // FitnessOptions instance, declaring the Fit API data types
-        // and access required
-        return FitnessOptions
-            .builder()
-            .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
-            .build();
-    }
+    private static final int REQUEST_OAUTH_REQUEST_CODE = 1;
 
-    private GoogleSignInAccount getAccount() {
-        return GoogleSignIn.getLastSignedInAccount(getActivity());
-    }
-
-    private void requestPermissions() {
-        GoogleSignIn.requestPermissions(getActivity(), GOOGLE_FIT_PERMISSIONS_REQUEST_CODE, getAccount(), getFitnessSignInOptions());
-    }
+    FitnessOptions fitnessOptions = FitnessOptions.builder()
+      .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_STEP_COUNT_CUMULATIVE, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA)
+      .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
+      .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
+      .build();
 
     @PluginMethod
     public void connectToGoogleFit(PluginCall call) {
-        GoogleSignInAccount account = getAccount();
-        if (account == null) {
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-            GoogleSignInClient signInClient = GoogleSignIn.getClient(this.getActivity(), gso);
-            Intent intent = signInClient.getSignInIntent();
-            startActivityForResult(call, intent, RC_SIGN_IN);
-        } else {
-            this.requestPermissions();
-        }
-        call.resolve();
+      if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACTIVITY_RECOGNITION)
+        != PackageManager.PERMISSION_GRANTED) {
+
+        ActivityCompat.requestPermissions(
+          getActivity(),
+          new String[]{Manifest.permission.ACTIVITY_RECOGNITION},
+          1
+        );
+      }
+
+
+      if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(getActivity()), fitnessOptions)) {
+        GoogleSignIn.requestPermissions(
+          getActivity(),
+          REQUEST_OAUTH_REQUEST_CODE,
+          GoogleSignIn.getLastSignedInAccount(getActivity()),
+          fitnessOptions);
+      }
+
+      call.resolve();
     }
 
     @PluginMethod
     public void isAllowed(PluginCall call) {
+        GoogleSignInAccount account = getSignedInAccount();
+
         final JSObject result = new JSObject();
-        GoogleSignInAccount account = getAccount();
-        if (account != null && GoogleSignIn.hasPermissions(account, getFitnessSignInOptions())) {
-            result.put("allowed", true);
+
+        if (account != null && GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+            result.put("isAllowed", true);
         } else {
-            result.put("allowed", false);
+            result.put("isAllowed", false);
         }
+
         call.resolve(result);
     }
 
     @Override
     protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
         super.handleOnActivityResult(requestCode, resultCode, data);
+
         PluginCall savedCall = getSavedCall();
 
-        if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+        if (resultCode == Activity.RESULT_OK) {
+
+          if (requestCode == REQUEST_OAUTH_REQUEST_CODE) {
             savedCall.resolve();
-        } else if (requestCode == RC_SIGN_IN) {
-            if (!GoogleSignIn.hasPermissions(this.getAccount(), getFitnessSignInOptions())) {
-                this.requestPermissions();
-            } else {
-                savedCall.resolve();
-            }
+          }
+        } else {
+          savedCall.reject("no permissions");
         }
     }
 
     @PluginMethod
     public Task<DataReadResponse> getSteps(final PluginCall call) throws ParseException {
-        final GoogleSignInAccount account = getAccount();
+        final GoogleSignInAccount account = getSignedInAccount();
 
         if (account == null) {
             call.reject("No access");
             return null;
         }
 
-        long startTime = dateToTimestamp(call.getString("startTime"));
-        long endTime = dateToTimestamp(call.getString("endTime"));
+        long startDate = dateToTimestamp(call.getString("startDate"));
+        long endDate = dateToTimestamp(call.getString("endDate"));
 
         String timeUnitInput = call.getString("timeUnit", "HOURS");
 
@@ -129,15 +140,15 @@ public class GoogleFitPlugin extends Plugin {
 
         int bucketSize = call.getInt("bucketSize", 1);
 
-        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
+        if (startDate == -1 || endDate == -1 || bucketSize == -1) {
             call.reject("Must provide a start time and end time");
 
             return null;
         }
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
-            .aggregate(DataType.TYPE_STEP_COUNT_DELTA)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .aggregate(DataType.AGGREGATE_STEP_COUNT_DELTA)
+            .setTimeRange(startDate, endDate, TimeUnit.MILLISECONDS)
             .bucketByTime(bucketSize, timeUnit)
             .enableServerQueries()
             .build();
@@ -154,26 +165,32 @@ public class GoogleFitPlugin extends Plugin {
                         JSONArray steps = new JSONArray();
 
                         for (Bucket bucket : buckets) {
+                            String bucketStart = timestampToDate(bucket.getStartTime(TimeUnit.MILLISECONDS));
+                            String bucketEnd = timestampToDate(bucket.getEndTime(TimeUnit.MILLISECONDS));
+                            
+                            Integer stepsInBucket = 0;
+
                             for (DataSet dataSet : bucket.getDataSets()) {
                                 for (DataPoint dp : dataSet.getDataPoints()) {
-                                    for (Field field : dp.getDataType().getFields()) {
-                                        JSONObject stepEntry = new JSONObject();
-                                        try {
-                                            stepEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                                            stepEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                            stepEntry.put("value", dp.getValue(field).asInt());
-                                            steps.put(stepEntry);
-                                        } catch (JSONException e) {
-                                            call.reject(e.getMessage());
-                                            return;
-                                        }
-                                    }
+                                    stepsInBucket += dp.getValue(dp.getDataType().getFields().get(0)).asInt();
                                 }
+                            }
+
+                            JSONObject stepEntry = new JSONObject();
+
+                            try {
+                                stepEntry.put("startDate", bucketStart);
+                                stepEntry.put("endDate", bucketEnd);
+                                stepEntry.put("value", stepsInBucket);
+                                steps.put(stepEntry);
+                            } catch (JSONException e) {
+                                call.reject(e.getMessage());
+                                return;
                             }
                         }
 
                         JSObject result = new JSObject();
-                        result.put("steps", steps);
+                        result.put("data", steps);
 
                         call.resolve(result);
                     }
@@ -183,24 +200,24 @@ public class GoogleFitPlugin extends Plugin {
 
     @PluginMethod
     public Task<DataReadResponse> getWeight(final PluginCall call) throws ParseException {
-        final GoogleSignInAccount account = getAccount();
+        final GoogleSignInAccount account = getSignedInAccount();
 
         if (account == null) {
             call.reject("No access");
             return null;
         }
 
-        long startTime = dateToTimestamp(call.getString("startTime"));
-        long endTime = dateToTimestamp(call.getString("endTime"));
+        long startDate = dateToTimestamp(call.getString("startDate"));
+        long endDate = dateToTimestamp(call.getString("endDate"));
 
-        if (startTime == -1 || endTime == -1) {
+        if (startDate == -1 || endDate == -1) {
             call.reject("Must provide a start time and end time");
 
             return null;
         }
         DataReadRequest readRequest = new DataReadRequest.Builder()
             .read(DataType.TYPE_WEIGHT)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+            .setTimeRange(startDate, endDate, TimeUnit.MILLISECONDS)
             .enableServerQueries()
             .build();
 
@@ -218,8 +235,8 @@ public class GoogleFitPlugin extends Plugin {
                             for (Field field : dp.getDataType().getFields()) {
                                 JSONObject weightEntry = new JSONObject();
                                 try {
-                                    weightEntry.put("startTime", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                                    weightEntry.put("endTime", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("startDate", timestampToDate(dp.getStartTime(TimeUnit.MILLISECONDS)));
+                                    weightEntry.put("endDate", timestampToDate(dp.getEndTime(TimeUnit.MILLISECONDS)));
                                     weightEntry.put("value", dp.getValue(field).asFloat());
                                     weights.put(weightEntry);
                                 } catch (JSONException e) {
@@ -229,7 +246,7 @@ public class GoogleFitPlugin extends Plugin {
                             }
                         }
                         JSObject result = new JSObject();
-                        result.put("weights", weights);
+                        result.put("data", weights);
                         call.resolve(result);
                     }
                 }
@@ -237,79 +254,120 @@ public class GoogleFitPlugin extends Plugin {
     }
 
     @PluginMethod
-    public Task<DataReadResponse> getActivities(final PluginCall call) throws ParseException {
-        final GoogleSignInAccount account = getAccount();
+    public void getActivities(final PluginCall call) throws ParseException {
+        final GoogleSignInAccount account = getSignedInAccount();
 
         if (account == null) {
             call.reject("No access");
-            return null;
+            return;
         }
 
-        long startTime = dateToTimestamp(call.getString("startTime"));
-        long endTime = dateToTimestamp(call.getString("endTime"));
-        String timeUnitInput = call.getString("timeUnit", "HOURS");
+        long startDate = dateToTimestamp(call.getString("startDate"));
+        long endDate = dateToTimestamp(call.getString("endDate"));
 
-        TimeUnit timeUnit = stringToTimeUnit(timeUnitInput);
 
-        int bucketSize = call.getInt("bucketSize", 1);
-
-        if (startTime == -1 || endTime == -1 || bucketSize == -1) {
+        if (startDate == -1 || endDate == -1) {
             call.reject("Must provide a start time and end time");
 
-            return null;
+            return;
         }
+
         DataReadRequest readRequest = new DataReadRequest.Builder()
-            .aggregate(DataType.TYPE_CALORIES_EXPENDED)
-            .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .bucketByActivitySegment(bucketSize, timeUnit)
-            .enableServerQueries()
-            .build();
+          .read(DataType.TYPE_ACTIVITY_SEGMENT)
+          .read(DataType.TYPE_CALORIES_EXPENDED)
+          .read(DataType.TYPE_STEP_COUNT_DELTA)
+          .read(DataType.TYPE_DISTANCE_DELTA)
+          .read(DataType.TYPE_SPEED)
+          .setTimeRange(startDate, endDate, TimeUnit.MILLISECONDS)
+          .bucketByActivitySegment(1, TimeUnit.MINUTES)
+          .build();
 
-        return Fitness
-            .getHistoryClient(getActivity(), account)
-            .readData(readRequest)
-            .addOnSuccessListener(
-                new OnSuccessListener<DataReadResponse>() {
-                    @Override
-                    public void onSuccess(DataReadResponse dataReadResponse) {
-                        List<Bucket> activityBuckets = dataReadResponse.getBuckets();
+        Fitness.getHistoryClient(getContext(), GoogleSignIn.getLastSignedInAccount(getContext()))
+          .readData(readRequest)
+          .addOnSuccessListener(response -> {
+            JSObject result = processData(response);
+            call.resolve(result);
+          })
+          .addOnFailureListener(e -> {
+            call.reject("Failed to read data: " + e.getMessage());
+          });
 
-                        JSONArray activities = new JSONArray();
+    }
 
-                        for (Bucket bucket : activityBuckets) {
-                            JSONObject activity = new JSONObject();
-                            try {
-                                activity.put("startTime", timestampToDate(bucket.getStartTime(TimeUnit.MILLISECONDS)));
-                                activity.put("endTime", timestampToDate(bucket.getEndTime(TimeUnit.MILLISECONDS)));
-                                List<DataSet> activityDataSets = bucket.getDataSets();
+    private JSObject processData(DataReadResponse response) {
+      List<Bucket> buckets = response.getBuckets();
+      JSONArray activities = new JSONArray();
+      for (Bucket bucket : buckets) {
+        String activityType = bucket.getActivity();
 
-                                for (DataSet ds : activityDataSets) {
-                                    for (DataPoint dp : ds.getDataPoints()) {
-                                        for (Field field : dp.getDataType().getFields()) {
-                                            String dataTypeName = dp.getDataType().getName();
-                                            switch (dataTypeName) {
-                                                case "com.google.calories.expended":
-                                                    activity.put("calories", dp.getValue(field).asFloat());
-                                                    break;
-                                            }
-                                        }
-                                    }
-                                }
-                                activity.put("name", bucket.getActivity());
-                                activities.put(activity);
-                            } catch (JSONException e) {
-                                call.reject(e.getMessage());
-                                return;
-                            }
-                        }
-                        JSObject result = new JSObject();
-                        result.put("activities", activities);
+        if ("unknown".equals(activityType)) {
+          continue;
+        }
 
-                        call.resolve(result);
-                    }
+        JSONObject summary = new JSONObject();
+        Integer activityTypeId = null;  // Initialize it to null
+
+        try {
+          summary.put("activityType", activityType);
+          summary.put("startDate", timestampToDate(bucket.getStartTime(TimeUnit.MILLISECONDS)));
+          summary.put("endDate", timestampToDate(bucket.getEndTime(TimeUnit.MILLISECONDS)));
+
+          List<DataSet> dataSets = bucket.getDataSets();
+
+          for (DataSet dataSet : dataSets) {
+            if (dataSet.getDataPoints().size() > 0) {
+              DataPoint dataPoint = dataSet.getDataPoints().get(0);
+
+                // Check for the activity segment and extract activity type ID
+                if (dataSet.getDataType().equals(DataType.TYPE_ACTIVITY_SEGMENT)) {
+                    activityTypeId = dataPoint.getValue(Field.FIELD_ACTIVITY).asInt();
+                    summary.put("activityTypeId", activityTypeId);
                 }
-            );
+
+              summary.put("dataSource", dataPoint.getOriginalDataSource().getDataType().getName());
+
+              switch (dataSet.getDataType().getName()) {
+                  case "com.google.activity.summary":
+                      summary.put("activityTypeId", dataPoint.getValue(Field.FIELD_ACTIVITY).asInt());
+                      break;
+
+                case "com.google.distance.delta":
+                  summary.put("distance", dataPoint.getValue(Field.FIELD_DISTANCE).asFloat());
+                  break;
+
+                case "com.google.speed.summary":
+                  summary.put("speed", dataPoint.getValue(Field.FIELD_AVERAGE).asFloat());
+                  break;
+
+                case "com.google.calories.expended":
+                  summary.put("calories", dataPoint.getValue(Field.FIELD_CALORIES).asFloat());
+                  break;
+
+                case "com.google.step_count.delta":
+                  summary.put("steps", dataPoint.getValue(Field.FIELD_STEPS).asInt());
+                  break;
+
+                default:
+                  Log.i(TAG, "Unhandled: " + dataSet.getDataType().getName());
+              }
+            }
+          }
+        } catch (JSONException e) {
+            call.reject(e.getMessage());
+
+            return;
+        }
+
+        activities.put(summary);
+      }
+      JSObject result = new JSObject();
+      result.put("data", activities);
+
+      return result;
+    }
+
+    private GoogleSignInAccount getSignedInAccount() {
+      return GoogleSignIn.getLastSignedInAccount(getActivity());
     }
 
     private void dumpDataSet(DataSet dataSet) {
