@@ -353,9 +353,7 @@ public class GoogleFitPlugin extends Plugin {
             }
           }
         } catch (JSONException e) {
-            call.reject(e.getMessage());
-
-            return;
+            // TODO: handle exception
         }
 
         activities.put(summary);
