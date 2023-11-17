@@ -60,9 +60,9 @@ public class GoogleFitPlugin extends Plugin {
       .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
       .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
       .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
-      .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-      .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
-      .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
+    //   .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+    //   .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+    //   .addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
       .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_READ)
       .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
       .build();
@@ -276,8 +276,8 @@ public class GoogleFitPlugin extends Plugin {
           .read(DataType.TYPE_ACTIVITY_SEGMENT)
           .read(DataType.TYPE_CALORIES_EXPENDED)
           .read(DataType.TYPE_STEP_COUNT_DELTA)
-          .read(DataType.TYPE_DISTANCE_DELTA)
-          .read(DataType.TYPE_SPEED)
+        //   .read(DataType.TYPE_DISTANCE_DELTA)
+        //   .read(DataType.TYPE_SPEED)
           .setTimeRange(startDate, endDate, TimeUnit.MILLISECONDS)
           .bucketByActivitySegment(1, TimeUnit.MINUTES)
           .build();
@@ -331,13 +331,13 @@ public class GoogleFitPlugin extends Plugin {
                       summary.put("activityTypeId", dataPoint.getValue(Field.FIELD_ACTIVITY).asInt());
                       break;
 
-                case "com.google.distance.delta":
-                  summary.put("distance", dataPoint.getValue(Field.FIELD_DISTANCE).asFloat());
-                  break;
+                // case "com.google.distance.delta":
+                //   summary.put("distance", dataPoint.getValue(Field.FIELD_DISTANCE).asFloat());
+                //   break;
 
-                case "com.google.speed.summary":
-                  summary.put("speed", dataPoint.getValue(Field.FIELD_AVERAGE).asFloat());
-                  break;
+                // case "com.google.speed.summary":
+                //   summary.put("speed", dataPoint.getValue(Field.FIELD_AVERAGE).asFloat());
+                //   break;
 
                 case "com.google.calories.expended":
                   summary.put("calories", dataPoint.getValue(Field.FIELD_CALORIES).asFloat());
