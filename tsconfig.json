@@ -2,7 +2,6 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "declaration": true,
-    "experimentalDecorators": true,
     "esModuleInterop": true,
     "inlineSources": true,
     "lib": ["dom", "es2017"],
@@ -15,7 +14,8 @@
     "pretty": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "skipLibCheck": true
   },
   "files": ["src/index.ts"]
 }

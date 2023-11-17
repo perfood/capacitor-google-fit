@@ -1,90 +1,74 @@
 export interface GoogleFitPlugin {
-  /**
-   * Connect to Google Fit
-   * @returns {Promise}
-   * @resolve any
-   */
   connectToGoogleFit(): Promise<void>;
-
-  /**
-   * Returns wether the permissions are ok or not
-   * @returns {Promise}
-   * @resolve AllowedResult
-   */
-  isAllowed(): Promise<AllowedResult>;
-
-  /**
-   * Get step history @param bucketSize and @param timeUnit you can define the buckets in which the data is returned
-   * @returns {Promise}
-   * @resolve StepQueryResult
-   */
-  getSteps(call: ExtendedQueryInput): Promise<StepQueryResult>;
-
-  /**
-   * Get weight history
-   * @returns {Promise}
-   * @resolve WeightQueryResult
-   */
-  getWeight(call: QueryInput): Promise<WeightQueryResult>;
-
-  /**
-   * Get Activites, with @param bucketSize and @param timeUnit you can define the minimum length of an activity
-   * @returns {Promise}
-   * @resolve ActivityQueryResult
-   */
-  getActivities(call: ExtendedQueryInput): Promise<ActivityQueryResult>;
+  isAllowed(): Promise<IsAllowedResult>;
+  getSteps(options: GetStepsOptions): Promise<StepsQueryResult>;
+  getWeight(options: GetWeightOptions): Promise<WeightQueryResult>;
+  getActivities(options: GetActivitiesOptions): Promise<ActivitiesQueryResult>;
 }
 
-export interface PermissionData {
-  allowed: boolean;
-}
-
-export interface QueryInput {
-  startTime: Date;
-  endTime: Date;
-}
-
-export interface ExtendedQueryInput extends QueryInput {
+export interface GetStepsOptions {
+  startDate: string;
+  endDate: string;
+  timeUnit: string;
   bucketSize: number;
-  timeUnit: TimeUnit;
 }
 
-/**
- * The results of a ActivityQuery.
- * The @param value inside of SimpleData has the values representing the Google Fit Constants as the name of the activity
- */
-export interface ActivityQueryResult {
-  activities: ActivityData[];
+export interface GetWeightOptions {
+  startDate: string;
+  endDate: string;
 }
 
-/**
- * The results of a WeightQuery.
- * The @param value inside of SimpleData has the unit kilograms
- */
+export interface GetActivitiesOptions {
+  startDate: string;
+  endDate: string;
+}
+
+export interface IsAllowedResult {
+  isAllowed: boolean;
+}
+
+export interface StepsQueryResult {
+  data: {
+    startDate: string;
+    endDate: string;
+    value: number;
+  }[];
+}
+
 export interface WeightQueryResult {
-  weights: SimpleData[];
+  data: {
+    startDate: string;
+    endDate: string;
+    value: number;
+  }[];
 }
 
-/**
- * The results of a StepQuery.
- * The @param value inside of SimpleData always represents a count
- */
-export interface StepQueryResult {
-  steps: SimpleData[];
+export interface ActivitiesQueryResult {
+  data: {
+    startDate: string;
+    endDate: string;
+    activityType: string;
+    activityTypeId: number;
+    calories: number;
+    steps: number;
+    speed: number;
+    distance: number;
+    dataSource:
+      | 'com.google.activity.segment'
+      | 'com.google.activity.samples'
+      | string;
+  }[];
 }
+
 export interface SimpleData {
-  startTime: string;
-  endTime: string;
+  startDate: string;
+  endDate: string;
   value: number;
 }
 
 export interface ActivityData extends SimpleData {
   calories: number;
   name: string;
-}
-
-export interface AllowedResult {
-  allowed: boolean;
 }
 
 export enum TimeUnit {
